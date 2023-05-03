@@ -12,8 +12,13 @@ public class GameStartScene : MonoBehaviour
     public Button ButtonExit;
     void Start()
     {
-        ButtonPlay.onClick.AddListener(() => { Debug.Log("Play"); });
-        ButtonSetting.onClick.AddListener(() => { Debug.Log("Setting"); });
+        ButtonPlay.onClick.AddListener(() => { Debug.Log("Play");
+            AudioManager.Play(SoundName.Button);
+        });
+        ButtonSetting.onClick.AddListener(() => {
+            WindowsManager.Instance.OpenWindow(WindowsType.SettingWindow);
+            AudioManager.Play(SoundName.Button);
+        });
         ButtonExit.onClick.AddListener(ExitGame);
     }
 

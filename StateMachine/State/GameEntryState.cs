@@ -25,6 +25,7 @@ namespace Assets.Scripts.StateMachine
             UnityEngine.Debug.Log("Enter GameEntry State");
             UnityEngine.Debug.Log("Change Scene to GameStartScene");
             SceneManager.LoadScene("GameStartScene");
+            AudioManager.Play(SoundName.BGM1);
         }
 
         public override void ExitState(IStateMachine sm)

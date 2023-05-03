@@ -56,6 +56,8 @@ public class AudioManager : MonoSingleton<AudioManager>
     {
         if (audioDic.ContainsKey(name))
         {
+            if (audioDic[name].isPlaying)
+                audioDic[name].Stop();
             audioDic[name].Play();
             curPlayingAudio = audioDic[name];
         }

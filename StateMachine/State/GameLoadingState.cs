@@ -21,6 +21,7 @@ namespace Assets.Scripts.StateMachine
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("Enter GameLoading State");
+            AudioManager.Play(SoundName.BGM0);
         }
 
         public override void ExitState(IStateMachine sm)
