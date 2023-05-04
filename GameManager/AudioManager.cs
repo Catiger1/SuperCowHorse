@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.Audio;
 public class AudioGroupType
 {
+    public static string Master = "Master";
     public static string BGM = "BGM";
     public static string SFX = "SFX";
 }
@@ -16,7 +17,7 @@ public class SoundName
 
 public class AudioManager : MonoSingleton<AudioManager>
 {
-    private static AudioMixer audioMixer;
+    public static AudioMixer audioMixer;
     private static Dictionary<string, AudioSource> audioDic;
     private static AudioSource curPlayingAudio;
     public override void Init()
@@ -26,9 +27,9 @@ public class AudioManager : MonoSingleton<AudioManager>
         InitSoundsAsset();
     }
     
-    public static void SetVolunm(string audioType, float value)
+    public static void SetVolunm(string audioGroupType, float value)
     {
-        audioMixer.SetFloat(audioType,value);
+        audioMixer.SetFloat(audioGroupType, value);
     }
     public static float GetVolunm(string audioType)
     {
