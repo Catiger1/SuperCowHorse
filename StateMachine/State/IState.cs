@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace Assets.Scripts.StateMachine
 {
     internal interface IState
