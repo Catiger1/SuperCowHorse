@@ -3,6 +3,7 @@ using Mirror;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
 
 
@@ -24,14 +25,6 @@ public class PlayerInputManager :  NetworkBehaviour
     private readonly float speed = 5f;
     private readonly float jumpVelocity = 11f;
     private int status;
-    private Transform _target;
-    public Transform Target { get { return _target; }
-        set{
-            _target = value;
-            InitComponent();
-            AddInputDetection();
-        } 
-    }
     private Animator _animator;
     private Rigidbody2D _rigidbody;
     private float direction;
@@ -57,7 +50,8 @@ public class PlayerInputManager :  NetworkBehaviour
 
     void Start()
     {
-        Target = transform;
+        InitComponent();
+        SetComponent(0);
     }
     public override void OnStartAuthority()
     {
@@ -70,6 +64,7 @@ public class PlayerInputManager :  NetworkBehaviour
     }
     private void AddInputDetection()
     {
+        InputDetectionList.Clear();
         //Add Move Detection        
         AddDetection(() => { return true; }, Move);
         //Add Jump Detection
@@ -87,9 +82,14 @@ public class PlayerInputManager :  NetworkBehaviour
     }
     private void InitComponent()
     {
-        _rigidbody = _target.GetComponent<Rigidbody2D>();
-        _animator = _target.GetComponent<Animator>();
-        playerSize = _target.GetComponent<SpriteRenderer>().bounds.size;
+        _rigidbody = GetComponent<Rigidbody2D>();
+        playerSize = transform.GetChild(0).GetComponent<SpriteRenderer>().bounds.size;
+    }
+    private void SetComponent(int index)
+    {
+        Transform child = transform.GetChild(index);
+        _animator = child.GetComponent<Animator>();
+        AddInputDetection();
         //boxSize = new Vector2(playerSize.x * 0.6f, boxHeight);
     }
 
@@ -161,7 +161,7 @@ public class PlayerInputManager :  NetworkBehaviour
     private void OnGround()
     {
         //whether leave ground
-        if(Physics2D.Raycast((Vector2)_target.position, Vector2.down, playerSize.y * 0.5f,mask))
+        if(Physics2D.Raycast((Vector2)transform.position, Vector2.down, playerSize.y * 0.5f,mask))
         {
             if ((status &= (int)Status.OnGround) == 0)
             {
