@@ -28,30 +28,39 @@ public class RoomPlayerSelector : NetworkBehaviour
     /// </summary>
     public override void OnStartServer(){}
 
-    [ClientRpc]
-    public void CmdChooseCharacter(int newIndex, int changIndex)
+    [ClientRpc(includeOwner = true)]
+    public void CmdChooseCharacter(int changeIndex)
     {
-        btnList[newIndex].interactable = false;
-        if (changIndex != -1)
-            btnList[changIndex].interactable = true;
-
+        if (changeIndex != -1)
+            btnList[changeIndex].interactable = true;
     }
     [Command(requiresAuthority = false)]
-    void SetBtnFunc(int newIndex,int changIndex)
+    void SetBtnFunc(int changeIndex)
     {
-        CmdChooseCharacter(newIndex,changIndex);
+        CmdChooseCharacter(changeIndex);
     }
 
-    [ClientRpc]
-    void Clear(int selectIndex)
+    public void DisableBtn(int index)
     {
-        btnList[selectIndex].interactable = true;
+        if (index != -1)
+            btnList[index].interactable = false;
     }
-    [Command(requiresAuthority = false)]
-    public void ClearCmd(int selectIndex)
+
+    public void EnableBtn(int index)
     {
-        Clear(selectIndex);
+        if (index != -1)
+            btnList[index].interactable = true;
     }
+    //[ClientRpc]
+    //void Clear(int selectIndex)
+    //{
+    //    btnList[selectIndex].interactable = true;
+    //}
+    //[Command(requiresAuthority = false)]
+    //public void ClearCmd(int selectIndex)
+    //{
+    //    Clear(selectIndex);
+    //}
 
     //[ClientRpc]
     //public void SetSlotAnim(int index)
@@ -119,6 +128,26 @@ public class RoomPlayerSelector : NetworkBehaviour
 
     }
 
+    //public void InitBtn(NetworkRoomPlayerExt localPlayer)
+    //{
+    //    for (int i = 0; i < transform.childCount; i++)
+    //    {
+    //        Button btn = transform.GetChild(i).GetComponent<Button>();
+    //        btn.onClick.AddListener(() => {
+    //            int index = GetSelectorNameIndex(btn.name);
+    //            int changeIndex = curSelectIndex;
+    //            curSelectIndex = index;
+    //            localPlayer.CmdChangeSeletCharacter(index);
+    //            SetBtnFunc(index, changeIndex);
+    //        });
+    //        btnList.Add(btn);
+    //    }
+    //}
+    public void Clear(int index)
+    {
+        btnList[index].interactable = true;
+    }
+
     private void Start()
     {
         if (localRoomPlayer == null)
@@ -138,12 +167,13 @@ public class RoomPlayerSelector : NetworkBehaviour
         for (int i = 0; i < transform.childCount; i++)
         {
             Button btn = transform.GetChild(i).GetComponent<Button>();
-            btn.onClick.AddListener(() => {
+            btn.onClick.AddListener(() =>
+            {
                 int index = GetSelectorNameIndex(btn.name);
                 int changeIndex = curSelectIndex;
                 curSelectIndex = index;
-                localRoomPlayer.CurSelectCharacterIndex = index;
-                SetBtnFunc(index,changeIndex);
+                localRoomPlayer.CmdChangeSeletCharacter(index);//localRoomPlayer.CurSelectCharacterIndex = index;
+                //SetBtnFunc(changeIndex);
             });
             btnList.Add(btn);
         }
