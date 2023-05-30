@@ -16,6 +16,7 @@ public class RoomPlayerSelector : NetworkBehaviour
 
     public NetworkRoomPlayerExt localRoomPlayer;
     private int local_SlotIndex = -1;
+    private bool isInit = false;
     public int Local_SlotIndex { get {
             return local_SlotIndex;
         } set { } }
@@ -42,6 +43,8 @@ public class RoomPlayerSelector : NetworkBehaviour
 
     public void DisableBtn(int index)
     {
+        if (!isInit) InitSelector();
+
         if (index != -1)
             btnList[index].interactable = false;
     }
@@ -51,27 +54,6 @@ public class RoomPlayerSelector : NetworkBehaviour
         if (index != -1)
             btnList[index].interactable = true;
     }
-    //[ClientRpc]
-    //void Clear(int selectIndex)
-    //{
-    //    btnList[selectIndex].interactable = true;
-    //}
-    //[Command(requiresAuthority = false)]
-    //public void ClearCmd(int selectIndex)
-    //{
-    //    Clear(selectIndex);
-    //}
-
-    //[ClientRpc]
-    //public void SetSlotAnim(int index)
-    //{
-
-    //}
-    //[Command(requiresAuthority = false)]
-    //void SetPlayerSlotAnimCmd(int index)
-    //{
-    //    SetSlotAnim(index);
-    //}
 
     public int GetCanUseCharacterIndex()
     {
@@ -128,27 +110,17 @@ public class RoomPlayerSelector : NetworkBehaviour
 
     }
 
-    //public void InitBtn(NetworkRoomPlayerExt localPlayer)
-    //{
-    //    for (int i = 0; i < transform.childCount; i++)
-    //    {
-    //        Button btn = transform.GetChild(i).GetComponent<Button>();
-    //        btn.onClick.AddListener(() => {
-    //            int index = GetSelectorNameIndex(btn.name);
-    //            int changeIndex = curSelectIndex;
-    //            curSelectIndex = index;
-    //            localPlayer.CmdChangeSeletCharacter(index);
-    //            SetBtnFunc(index, changeIndex);
-    //        });
-    //        btnList.Add(btn);
-    //    }
-    //}
     public void Clear(int index)
     {
         btnList[index].interactable = true;
     }
 
     private void Start()
+    {
+        if (!isInit) InitSelector();
+    }
+
+    private void InitSelector()
     {
         if (localRoomPlayer == null)
         {
@@ -172,11 +144,12 @@ public class RoomPlayerSelector : NetworkBehaviour
                 int index = GetSelectorNameIndex(btn.name);
                 int changeIndex = curSelectIndex;
                 curSelectIndex = index;
-                localRoomPlayer.CmdChangeSeletCharacter(index);//localRoomPlayer.CurSelectCharacterIndex = index;
-                //SetBtnFunc(changeIndex);
+                localRoomPlayer.CmdChangeSeletCharacter(index);
             });
             btnList.Add(btn);
         }
+
+        isInit = true;
     }
 
     private int GetSelectorNameIndex(string str)
@@ -195,7 +168,16 @@ public class RoomPlayerSelector : NetworkBehaviour
     /// This is invoked on behaviours when authority is removed.
     /// <para>When NetworkIdentity.RemoveClientAuthority is called on the server, this will be called on the client that owns the object.</para>
     /// </summary>
-    public override void OnStopAuthority() { }
+    public override void OnStopAuthority() {
+    }
+    private void OnDestroy()
+    {
+        GameObject[] gos = GameObject.FindGameObjectsWithTag("RoomPlayer");
+        foreach(GameObject go in gos)
+        {
+            go.transform.position = new Vector3(10000, 10000, 10000);
+        }
+    }
 
     #endregion
 }

@@ -50,10 +50,8 @@ namespace Mirror.Examples.NetworkRoom
         {
             InitComponent();
             this.enabled = true;
-            Debug.Log(NetworkRoomManagerExt.singleton.clientIndex);
             SetComponent(NetworkRoomManagerExt.singleton.clientIndex);
         }
-
         public override void OnStopAuthority()
         {
             InputDetectionList.Clear();

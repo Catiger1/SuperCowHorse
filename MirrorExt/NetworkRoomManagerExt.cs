@@ -1,5 +1,7 @@
+using Assets.Scripts.Common;
 using System;
 using UnityEngine;
+using UnityEngine.UI;
 
 /*
 	Documentation: https://mirror-networking.gitbook.io/docs/components/network-manager
@@ -17,6 +19,7 @@ namespace Mirror.Examples.NetworkRoom
 
         public static new NetworkRoomManagerExt singleton { get; private set; }
 
+        //public NetworkRoomPlayerExt LocalPlayer { get; set; }
         /// <summary>
         /// Runs on both Server and Client
         /// Networking is NOT initialized when this fires
@@ -35,9 +38,15 @@ namespace Mirror.Examples.NetworkRoom
         {
             // spawn the initial batch of Rewards
             if (sceneName == GameplayScene)
+            {
                 Spawner.InitialSpawn();
+            }
         }
 
+        public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
+        {
+            return base.OnRoomServerCreateGamePlayer(conn, roomPlayer);
+        }
         /// <summary>
         /// Called just after GamePlayer object is instantiated and just before it replaces RoomPlayer object.
         /// This is the ideal point to pass any data like player name, credentials, tokens, colors, etc.
@@ -50,17 +59,10 @@ namespace Mirror.Examples.NetworkRoom
         {
             //PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
             //playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
-            //PlayerSelector playerSelector = gamePlayer.GetComponent<PlayerSelector>();
-            //playerSelector.CharacterIndex = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
+            PlayerSelector playerSelector = gamePlayer.GetComponent<PlayerSelector>();
+            playerSelector.CharacterIndex = roomPlayer.GetComponent<NetworkRoomPlayerExt>().CurSelectCharacterIndex;//roomPlayer.GetComponent<NetworkRoomManagerExt>().room;
             return true;
         }
-
-        //public override GameObject OnRoomServerCreateGamePlayer(NetworkConnectionToClient conn, GameObject roomPlayer)
-        //{
-        //    int index = roomPlayer.GetComponent<PlayerScore>().index;
-        //    playerPrefab = spawnPrefabs[index];
-        //    return Instantiate(spawnPrefabs[index]);
-        //}
 
         public override void OnRoomStopClient()
         {
@@ -108,16 +110,34 @@ namespace Mirror.Examples.NetworkRoom
             base.OnRoomClientDisconnect();
         }
 
+        bool isShowingStartBtn = false;
         public override void OnGUI()
         {
             base.OnGUI();
 
-            if (allPlayersReady && showStartButton && GUI.Button(new Rect(150, 300, 120, 20), "START GAME"))
+            if (allPlayersReady && showStartButton)// && GUI.Button(new Rect(150, 300, 120, 20), "START GAME"))
             {
                 // set to false to hide it in the game scene
                 showStartButton = false;
-                ServerChangeScene(GameplayScene);
+
+                Transform roomCanvas = GameObject.FindGameObjectWithTag("RoomCanvas").transform;
+                Button btnRoomStart = roomCanvas.FindChildByName<Button>("BtnRoomStart");
+                btnRoomStart.gameObject.SetActive(true);
+                btnRoomStart.onClick.RemoveAllListeners();
+                isShowingStartBtn = true;
+                btnRoomStart.onClick.AddListener(() =>
+                {
+                    isShowingStartBtn = false;
+                    btnRoomStart.gameObject.SetActive(false);
+                    ServerChangeScene(GameplayScene);
+                });  
+            }else if(isShowingStartBtn&&!allPlayersReady)
+            {
+                Transform roomCanvas = GameObject.FindGameObjectWithTag("RoomCanvas").transform;
+                GameObject btnRoomStartGo = roomCanvas.FindChildByName("BtnRoomStart").gameObject;
+                btnRoomStartGo.SetActive(false);
             }
         }
+
     }
 }

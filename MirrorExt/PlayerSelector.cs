@@ -15,6 +15,8 @@ public class PlayerSelector : NetworkBehaviour
 {
     [SyncVar(hook =nameof(SetAnimatorController))]
     public int CharacterIndex;
+
+    Animator anim;
     #region Start & Stop Callbacks
 
     /// <summary>
@@ -26,9 +28,9 @@ public class PlayerSelector : NetworkBehaviour
 
     }
 
-    void SetAnimatorController(int _, int newIndex)
+    public void SetAnimatorController(int oldIndex, int newIndex)
     {
-        Animator anim = GetComponent<Animator>();
+        if(anim==null) anim = GetComponent<Animator>();
         RuntimeAnimatorController animatorController = ResourcesManager.Load<RuntimeAnimatorController>("Animation/AnimCharacter/" + "Player" + newIndex.ToString());
         anim.runtimeAnimatorController = animatorController;
     }
