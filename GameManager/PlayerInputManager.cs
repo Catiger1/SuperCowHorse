@@ -64,6 +64,7 @@ namespace Mirror.Examples.NetworkRoom
             //Add Jump Detection
             AddDetection(GetJump, Jump);
             AddDetection(() => { return _rigidbody.velocity.y < 0.1f; }, Fall);
+            AddDetection(() => { return _rigidbody.velocity.y > 0.1f; }, AnimJump);
             //Add Double Jump Detection
             AddDetection(() => { return (status & (int)Status.OnGround) == 0; }, AddDoubleJump2Command);
             //Add OnGround Detection
@@ -112,6 +113,12 @@ namespace Mirror.Examples.NetworkRoom
                 _rigidbody.gravityScale = fallMultiplier;
             }
         }
+        private void AnimJump()
+        {
+            if((status & (int)Status.OnGround) == 0)
+                _animator.SetBool(AnimationName.Jump, true);
+        }
+
         private IEnumerator WaitForJump()
         {
             yield return new WaitForSeconds(0.2f);
@@ -183,7 +190,7 @@ namespace Mirror.Examples.NetworkRoom
 
         int i;
         // Update is called once per frame
-        private void FixedUpdate()
+        private void Update()
         {
             if (!isLocalPlayer) return;
 

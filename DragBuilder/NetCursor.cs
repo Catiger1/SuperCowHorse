@@ -21,6 +21,7 @@ public class NetCursor : MonoBehaviour
     Collider2D boxCollider;
     Collider2D[] result;
     ContactFilter2D contactFilter2D;
+    ObjectCanPlaced objectCanPlaced;
     //·À¶¶
     float delayTime = 0.2f;
     bool canPlace = false;
@@ -30,7 +31,7 @@ public class NetCursor : MonoBehaviour
     {
         offset = GetComponent<SpriteRenderer>().size/2;
         offset.x = -offset.x;
-        result = new Collider2D[1];
+        result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
     }
 
@@ -48,15 +49,15 @@ public class NetCursor : MonoBehaviour
                 {
                     curSelectTF = hit.collider.transform;
                     boxCollider = hit.collider;
+                    objectCanPlaced = boxCollider.GetComponent<ObjectCanPlaced>();
                     this.DelayCallBack(delayTime, () => { canPlace = true; });
                 }
             }
             else if (canPlace)
             {
-                if (boxCollider.OverlapCollider(contactFilter2D, result)==0)
+                if (objectCanPlaced.IsCanPlaced(boxCollider,contactFilter2D,result))
                 {
-                    curSelectTF = null;
-                    canPlace = false;
+                    gameObject.SetActive(false);
                 }
             }
         }
@@ -69,6 +70,7 @@ public class NetCursor : MonoBehaviour
     {
         curSelectTF = null;
         canPlace = false;
+        objectCanPlaced = null;
     }
 
 }
