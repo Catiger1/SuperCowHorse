@@ -46,28 +46,6 @@ namespace Mirror.Examples.NetworkRoom
         {
             ChangeSeletCharacter(newIndex);
         }
-        [Command(requiresAuthority = false)]
-        public void CmdHideRoomPlayer()
-        {
-            HideRoomPlayer();
-        }
-        [ClientRpc(includeOwner = true)]
-        public void HideRoomPlayer()
-        {
-            transform.position = new Vector3(10000, 10000, 10000);
-        }
-
-        //[Command(requiresAuthority = false)]
-        //public void CmdShowRoomPlayer()
-        //{
-        //    ShowRoomPlayer();
-        //}
-        //[ClientRpc(includeOwner = true)]
-        //public void ShowRoomPlayer()
-        //{
-        //    transform.position = new Vector3(10000, 10000, 10000);
-        //}
-
         public override void OnStartServer()
         {
             base.OnStartServer();
