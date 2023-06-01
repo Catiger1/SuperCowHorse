@@ -63,7 +63,10 @@ public class NetCursor : MonoBehaviour
         }
 
         if (curSelectTF != null)
+        {
+            objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
             curSelectTF.position = newCursorPos;
+        }
     }
 
     private void OnDisable()
