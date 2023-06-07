@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 
-public class NetCursor : MonoBehaviour
+public class NetCursor : NetworkBehaviour
 {
     // Update is called once per frame
     Vector2 newCursorPos;
@@ -26,7 +26,7 @@ public class NetCursor : MonoBehaviour
     float delayTime = 0.2f;
     bool canPlace = false;
 
-
+    private Transform GenerateGos;
     private void Start()
     {
         offset = GetComponent<SpriteRenderer>().size/2;
@@ -34,39 +34,61 @@ public class NetCursor : MonoBehaviour
         result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
     }
+    [Command]
+    private void CmdUpdateCursorPosition(Vector2 position)
+    {
+        RpcUpdateCursorPosition(position);
+    }
 
+    [ClientRpc]
+    private void RpcUpdateCursorPosition(Vector2 position)
+    {
+        transform.position = position;
+    }
     void Update()
     {
-        newCursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        transform.position = newCursorPos - offset;
-
-        if(Input.GetMouseButtonDown(0))
+        if (isLocalPlayer)
         {
-            if (curSelectTF == null)
+            newCursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            //transform.position = newCursorPos - offset;
+            CmdUpdateCursorPosition(newCursorPos - offset);
+            if (Input.GetMouseButtonDown(0))
             {
-                hit = Physics2D.Raycast(newCursorPos, Vector2.zero, 100f, layer);
-                if (hit.collider != null)
+                if (curSelectTF == null)
                 {
-                    curSelectTF = hit.collider.transform;
-                    boxCollider = hit.collider;
-                    objectCanPlaced = boxCollider.GetComponent<ObjectCanPlaced>();
-                    this.DelayCallBack(delayTime, () => { canPlace = true; });
+                    hit = Physics2D.Raycast(newCursorPos, Vector2.zero, 100f, layer);
+                    if (hit.collider != null)
+                    {
+                        curSelectTF = hit.collider.transform;
+                        boxCollider = hit.collider;
+                        objectCanPlaced = boxCollider.GetComponent<ObjectCanPlaced>();
+                        this.DelayCallBack(delayTime, () => { canPlace = true; });
+                    }
+                }
+                else if (canPlace)
+                {
+                    if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
+                    {
+                        curSelectTF.SetParent(GenerateGos);
+                        gameObject.SetActive(false);
+                    }
                 }
             }
-            else if (canPlace)
+
+            if (curSelectTF != null)
             {
-                if (objectCanPlaced.IsCanPlaced(boxCollider,contactFilter2D,result))
-                {
-                    gameObject.SetActive(false);
-                }
+                objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
+                curSelectTF.position = newCursorPos;
             }
         }
+    }
 
-        if (curSelectTF != null)
-        {
-            objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
-            curSelectTF.position = newCursorPos;
-        }
+    private void OnEnable()
+    {
+        //GenerateGos = GameObject.FindWithTag("GenerateGos").transform;
+        
+        WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
+        Debug.Log(NetworkClient.localPlayer);
     }
 
     private void OnDisable()

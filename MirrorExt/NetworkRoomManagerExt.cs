@@ -40,6 +40,7 @@ namespace Mirror.Examples.NetworkRoom
             if (sceneName == GameplayScene)
             {
                 Spawner.InitialSpawn();
+                //Spawner.SpawnCursor(this);
             }
         }
 
