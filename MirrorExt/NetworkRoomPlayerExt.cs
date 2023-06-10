@@ -13,11 +13,13 @@ namespace Mirror.Examples.NetworkRoom
         public int CurSelectCharacterIndex = -1;
         public Animator anim;
         Transform btnRoomReadyTF;
+        bool init = false;
         [ClientRpc(includeOwner = true)]
         public void ChangeSeletCharacter(int newIndex)
         {
-            if (readyToBegin)
+            if (readyToBegin&&init)
                 return;
+            init =true;
             GameObject selectBtnGo = GameObject.FindGameObjectWithTag("SelectButton");
             RoomPlayerSelector selectBtn = selectBtnGo.GetComponent<RoomPlayerSelector>();
             selectBtn?.EnableBtn(CurSelectCharacterIndex);

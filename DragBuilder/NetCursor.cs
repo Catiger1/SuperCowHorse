@@ -27,6 +27,9 @@ public class NetCursor : NetworkBehaviour
     bool canPlace = false;
 
     private Transform GenerateGos;
+    public GameObject localPlayer;
+    public bool islocal = false;
+    public bool active = false;
     private void Start()
     {
         offset = GetComponent<SpriteRenderer>().size/2;
@@ -34,7 +37,7 @@ public class NetCursor : NetworkBehaviour
         result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
     }
-    [Command]
+    [Command(requiresAuthority = false)]
     private void CmdUpdateCursorPosition(Vector2 position)
     {
         RpcUpdateCursorPosition(position);
@@ -45,13 +48,33 @@ public class NetCursor : NetworkBehaviour
     {
         transform.position = position;
     }
+
+    public void SetLocalPlayer(GameObject go)
+    {
+        localPlayer = go;
+        islocal = localPlayer.GetComponent<NetworkIdentity>().isLocalPlayer;
+        if(islocal)
+            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdSetActive(bool flag)
+    {
+        RpcSetActive(flag);
+    }
+    //[ClientRpc]
+    public void RpcSetActive(bool flag)
+    {
+        active = flag;
+        if (active == false)
+            CmdUpdateCursorPosition(new Vector2(1000, 1000));
+    }
+
     void Update()
     {
-        if (isLocalPlayer)
+        if (islocal&&active)
         {
             newCursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            //transform.position = newCursorPos - offset;
-            CmdUpdateCursorPosition(newCursorPos - offset);
             if (Input.GetMouseButtonDown(0))
             {
                 if (curSelectTF == null)
@@ -67,6 +90,7 @@ public class NetCursor : NetworkBehaviour
                 }
                 else if (canPlace)
                 {
+                    //Ð´³ÉÍøÂç
                     if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
                     {
                         curSelectTF.SetParent(GenerateGos);
@@ -80,15 +104,10 @@ public class NetCursor : NetworkBehaviour
                 objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
                 curSelectTF.position = newCursorPos;
             }
-        }
-    }
 
-    private void OnEnable()
-    {
-        //GenerateGos = GameObject.FindWithTag("GenerateGos").transform;
-        
-        WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
-        Debug.Log(NetworkClient.localPlayer);
+            CmdUpdateCursorPosition(newCursorPos - offset);
+        }
+
     }
 
     private void OnDisable()
