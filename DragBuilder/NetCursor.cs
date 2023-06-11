@@ -1,11 +1,6 @@
 using Assets.Scripts.Common;
 using Mirror;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
 using UnityEngine;
-using UnityEngine.EventSystems;
-using UnityEngine.InputSystem;
 
 public class NetCursor : NetworkBehaviour
 {
@@ -29,22 +24,18 @@ public class NetCursor : NetworkBehaviour
     private Transform GenerateGos;
     public GameObject localPlayer;
     public bool islocal = false;
-    public bool active = false;
+    //[SyncVar(hook = nameof(CmdSetPos))]
+    public bool Active = false;
     private void Start()
     {
         offset = GetComponent<SpriteRenderer>().size/2;
         offset.x = -offset.x;
         result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
+        CmdUpdateCursorPosition(new Vector2(1000, 1000));
     }
     [Command(requiresAuthority = false)]
     private void CmdUpdateCursorPosition(Vector2 position)
-    {
-        RpcUpdateCursorPosition(position);
-    }
-
-    [ClientRpc]
-    private void RpcUpdateCursorPosition(Vector2 position)
     {
         transform.position = position;
     }
@@ -58,23 +49,28 @@ public class NetCursor : NetworkBehaviour
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdSetActive(bool flag)
+    public void CmdSetPos(bool _,bool flag)
     {
-        RpcSetActive(flag);
-    }
-    //[ClientRpc]
-    public void RpcSetActive(bool flag)
-    {
-        active = flag;
-        if (active == false)
+        if (flag == false)
             CmdUpdateCursorPosition(new Vector2(1000, 1000));
+    }
+    [Command(requiresAuthority = false)]
+    public void CmdSyncSelectTFPos(Transform tf,Vector2 pos)
+    {
+        tf.position = pos;
+    }
+    [Command(requiresAuthority = false)]
+    public void CmdSyncSelectTFPlaced(Transform tf, Transform parent)
+    {
+        tf.SetParent(parent);
     }
 
     void Update()
     {
-        if (islocal&&active)
+        if (islocal&& Active)
         {
             newCursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            CmdUpdateCursorPosition(newCursorPos - offset);
             if (Input.GetMouseButtonDown(0))
             {
                 if (curSelectTF == null)
@@ -93,8 +89,9 @@ public class NetCursor : NetworkBehaviour
                     //Ð´³ÉÍøÂç
                     if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
                     {
-                        curSelectTF.SetParent(GenerateGos);
-                        gameObject.SetActive(false);
+                        CmdSyncSelectTFPlaced(curSelectTF, GenerateGos);//curSelectTF.SetParent(GenerateGos);
+                        Active = false;//CmdSetActive(false);
+                        CmdUpdateCursorPosition(new Vector2(1000, 1000));
                     }
                 }
             }
@@ -102,12 +99,9 @@ public class NetCursor : NetworkBehaviour
             if (curSelectTF != null)
             {
                 objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
-                curSelectTF.position = newCursorPos;
+                CmdSyncSelectTFPos(curSelectTF,newCursorPos);//curSelectTF.position = newCursorPos;
             }
-
-            CmdUpdateCursorPosition(newCursorPos - offset);
         }
-
     }
 
     private void OnDisable()

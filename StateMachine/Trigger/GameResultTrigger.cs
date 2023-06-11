@@ -1,13 +1,15 @@
-﻿using System;
+﻿
+
+using System;
 
 namespace Assets.Scripts.StateMachine
 {
-    internal class GameLoadingFinishTrigger : Trigger
+    internal class GameResultTrigger : Trigger
     {
         protected override void Init()
         {
             base.Init();
-            TriggerID = GameTriggerID.GameLoadingFinish;
+            TriggerID = GameTriggerID.GameResult;
         }
         public override bool HandleTrigger(IStateMachine sm)
         {

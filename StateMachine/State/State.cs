@@ -7,7 +7,12 @@ namespace Assets.Scripts.StateMachine
     {
         LoadingGame = 1 >> 0,
         EnterGame = 1 >> 1,
-
+        Room = 1 >> 2,
+        SelectTrap = 1 >> 3,
+        EnterGamePlayRoom = 1 >> 4,
+        StartCountDown = 1 >> 5,
+        Play = 1 >> 6,
+        Result = 1 >> 7,
     };
     /// <summary>
     /// State
