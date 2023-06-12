@@ -8,5 +8,6 @@ namespace Assets.Scripts.StateMachine
         void Tick();
         void ChangeState(Enum state_id);
         int GetAndClearFlag();
+        void SetFlag(Enum e);
     }
 }

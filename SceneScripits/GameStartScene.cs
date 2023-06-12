@@ -1,4 +1,5 @@
 using Assets.Scripts.Common;
+using Assets.Scripts.StateMachine;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -12,9 +13,11 @@ public class GameStartScene : MonoBehaviour
     public Button ButtonExit;
     void Start()
     {
-        //ButtonPlay.onClick.AddListener(() => { Debug.Log("Play");
-        //    AudioManager.Play(SoundName.Button);
-        //});
+        ButtonPlay.onClick.AddListener(() =>
+        {
+            GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameEntryButton);
+            AudioManager.Play(SoundName.Button);
+        });
         //ButtonSetting.onClick.AddListener(() => {
         //    WindowsManager.Instance.OpenWindow(WindowsType.SettingWindow);
         //    AudioManager.Play(SoundName.Button);

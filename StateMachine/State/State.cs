@@ -13,6 +13,7 @@ namespace Assets.Scripts.StateMachine
         StartCountDown = 1 >> 5,
         Play = 1 >> 6,
         Result = 1 >> 7,
+        StopNet = 1 >> 8,
     };
     /// <summary>
     /// State

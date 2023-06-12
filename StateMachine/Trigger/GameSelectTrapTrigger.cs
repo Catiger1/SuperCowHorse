@@ -12,7 +12,7 @@ namespace Assets.Scripts.StateMachine
         }
         public override bool HandleTrigger(IStateMachine sm)
         {
-            throw new NotImplementedException();
+            return (sm.GetAndClearFlag() & (int)GameTriggerID.GameSelectTrap) != 0;
         }
     }
 }

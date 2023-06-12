@@ -9,12 +9,10 @@ public class LoadingScene : MonoSingleton<LoadingScene>
     public Transform UIBarCharacter;
     public float deltaTime = 5;
     private float time;
-    private float deltaX;
     void Start()
     {
         UIBarCharacter.DOMoveX(EndPos.position.x, deltaTime).SetEase(Ease.Linear);
         time = Time.time;
-        deltaX = EndPos.position.x - UIBarCharacter.position.x;
     }
 
     void Update()

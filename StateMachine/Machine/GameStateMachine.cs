@@ -11,7 +11,7 @@ namespace Assets.Scripts.StateMachine
         protected override void Initialize()
         {
             //默认loading
-            defaultstate_id = GameStateID.LoadingGame;
+            defaultstate_id = GameStateID.EnterGame;
             GameLoadingState loadingState = CreateState<GameLoadingState>();
             GameEntryState entryState = CreateState<GameEntryState>();
             RoomState roomState = CreateState<RoomState>();
@@ -19,27 +19,39 @@ namespace Assets.Scripts.StateMachine
             PlayState playState = CreateState<PlayState>();
             ResultState resultState = CreateState<ResultState>();
             GameStartCountDownState gameStartCountDownState = CreateState<GameStartCountDownState>();
+            StopNetState stopNet = CreateState<StopNetState>();
 
-            loadingState.AddMap(new GameLoadingFinishTrigger(), GameStateID.EnterGame);
+            GameLoadingFinishTrigger gameLoadingTrigger = new GameLoadingFinishTrigger();
+            GameRoomButtonTrigger gameRoomButtonTrigger = new GameRoomButtonTrigger();
+            GameEntryGamePlayRoomTrigger gamePlayRoomTrigger = new GameEntryGamePlayRoomTrigger();
+            GameStopNetTrigger gameStopNetTrigger = new GameStopNetTrigger();
+            GameSelectTrapTrigger gameSelectTrapTrigger = new GameSelectTrapTrigger();
+            GameCountDownTrigger gameCountDownTrigger = new GameCountDownTrigger();
+            GamePlayTrigger gamePlayTrigger = new GamePlayTrigger();
+            GameResultTrigger gameResultTrigger = new GameResultTrigger();
+            GameReturnToRoomTrigger gameReturnToRoomTrigger = new GameReturnToRoomTrigger();
+            //进入开始界面
+            loadingState.AddMap(gameLoadingTrigger, GameStateID.EnterGame);
+            stopNet.AddMap(gameLoadingTrigger, GameStateID.EnterGame);
             //进入游戏大厅
-            entryState.AddMap(new GameRoomButtonTrigger(), GameStateID.Room);
+            entryState.AddMap(gameRoomButtonTrigger, GameStateID.Room);
             //大厅全都准备好了进入游戏
-            roomState.AddMap(new GameEntryGamePlayRoomTrigger(), GameStateID.EnterGamePlayRoom);
+            roomState.AddMap(gamePlayRoomTrigger, GameStateID.EnterGamePlayRoom);
             //停止网络
-            roomState.AddMap(new GameStopNetTrigger(), GameStateID.EnterGame);
-            resultState.AddMap(new GameStopNetTrigger(), GameStateID.EnterGame);
-            playState.AddMap(new GameStopNetTrigger(), GameStateID.EnterGame);
+            roomState.AddMap(gameStopNetTrigger, GameStateID.StopNet);
+            resultState.AddMap(gameStopNetTrigger, GameStateID.StopNet);
+            playState.AddMap(gameStopNetTrigger, GameStateID.StopNet);
             //选择陷阱
-            playState.AddMap(new GameSelectTrapTrigger(), GameStateID.SelectTrap);
+            playState.AddMap(gameSelectTrapTrigger, GameStateID.SelectTrap);
             //选择陷阱完成，进入倒计时
-            selectTrapState.AddMap(new GameCountDownTrigger(), GameStateID.SelectTrap);
+            selectTrapState.AddMap(gameCountDownTrigger, GameStateID.StartCountDown);
             //倒计时结束开始游戏
-            gameStartCountDownState.AddMap(new GamePlayTrigger(), GameStateID.Play);
+            gameStartCountDownState.AddMap(gamePlayTrigger, GameStateID.Play);
             //游戏结算
-            playState.AddMap(new GameResultTrigger(), GameStateID.Result);
+            playState.AddMap(gameResultTrigger, GameStateID.Result);
             //返回房间
-            resultState.AddMap(new GameReturnToRoomTrigger(), GameStateID.Room);
-            playState.AddMap(new GameReturnToRoomTrigger(), GameStateID.Room);
+            resultState.AddMap(gameReturnToRoomTrigger, GameStateID.Room);
+            playState.AddMap(gameReturnToRoomTrigger, GameStateID.Room);
         }
     }
 }
