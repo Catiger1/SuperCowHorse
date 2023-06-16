@@ -12,7 +12,7 @@ namespace Assets.Scripts.StateMachine
         }
         public override bool HandleTrigger(IStateMachine sm)
         {
-            return (sm.GetAndClearFlag() & (int)GameTriggerID.GamePlay) != 0;
+            return sm.GetAndClearFlag(GameTriggerID.GamePlay);
         }
     }
 }

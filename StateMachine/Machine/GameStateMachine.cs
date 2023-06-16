@@ -30,6 +30,7 @@ namespace Assets.Scripts.StateMachine
             GamePlayTrigger gamePlayTrigger = new GamePlayTrigger();
             GameResultTrigger gameResultTrigger = new GameResultTrigger();
             GameReturnToRoomTrigger gameReturnToRoomTrigger = new GameReturnToRoomTrigger();
+
             //进入开始界面
             loadingState.AddMap(gameLoadingTrigger, GameStateID.EnterGame);
             stopNet.AddMap(gameLoadingTrigger, GameStateID.EnterGame);

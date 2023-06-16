@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Assets.Scripts.StateMachine
 {
@@ -28,7 +29,9 @@ namespace Assets.Scripts.StateMachine
         public void ChangeState(Enum state_id)
         {
             Curstate?.ExitState(this);
+            flag = 0;
             Curstate = states.Find((s)=> { return s.StateID.Equals(state_id); });
+            UnityEngine.Debug.Log(Curstate);
             Curstate.EnterState(this);
         }
         protected S CreateState<S>() where S:TS,new()
@@ -43,6 +46,7 @@ namespace Assets.Scripts.StateMachine
         }
         public void Tick()
         {
+           
             Curstate.Reason(this);
             Curstate.ActionState(this);
         }
@@ -60,11 +64,12 @@ namespace Assets.Scripts.StateMachine
         /// Get flag and Clear flag
         /// </summary>
         /// <returns></returns>
-        public int GetAndClearFlag()
+        public bool GetAndClearFlag(Enum e)
         {
             int tempFlag = flag;
-            flag = 0;
-            return tempFlag;
+            int compareFlag = (int)(GameTriggerID)e;
+            flag &= ~compareFlag;
+            return (tempFlag&compareFlag)!=0;
         }
     }
 }

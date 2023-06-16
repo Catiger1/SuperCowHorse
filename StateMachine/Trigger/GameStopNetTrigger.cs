@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using UnityEngine;
 
 namespace Assets.Scripts.StateMachine
 {
@@ -15,7 +11,7 @@ namespace Assets.Scripts.StateMachine
         }
         public override bool HandleTrigger(IStateMachine sm)
         {
-            return (sm.GetAndClearFlag() & (int)GameTriggerID.GameStopNet) != 0;
+            return sm.GetAndClearFlag(GameTriggerID.GameStopNet);
         }
     }
 }

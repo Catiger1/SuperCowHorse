@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Assets.Scripts.StateMachine
 {
     public enum GameStateID
     {
-        LoadingGame = 1 >> 0,
-        EnterGame = 1 >> 1,
-        Room = 1 >> 2,
-        SelectTrap = 1 >> 3,
-        EnterGamePlayRoom = 1 >> 4,
-        StartCountDown = 1 >> 5,
-        Play = 1 >> 6,
-        Result = 1 >> 7,
-        StopNet = 1 >> 8,
+        LoadingGame = 1 << 0,
+        EnterGame = 1 << 1,
+        Room = 1 << 2,
+        SelectTrap = 1 << 3,
+        EnterGamePlayRoom = 1 << 4,
+        StartCountDown = 1 << 5,
+        Play = 1 << 6,
+        Result = 1 << 7,
+        StopNet = 1 << 8,
     };
     /// <summary>
     /// State
@@ -52,7 +53,8 @@ namespace Assets.Scripts.StateMachine
         {
             for (int i = 0; i < list_trigger.Count; i++)
             {
-                if (list_trigger[i].HandleTrigger(sm))
+                bool flag = list_trigger[i].HandleTrigger(sm);
+                if (flag)
                 {
                     tempStateID = map_trigger2state[list_trigger[i].TriggerID];
                     sm.ChangeState(tempStateID);

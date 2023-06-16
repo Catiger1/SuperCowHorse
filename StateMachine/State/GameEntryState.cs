@@ -1,5 +1,4 @@
-﻿
-using UnityEngine.SceneManagement;
+﻿using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.StateMachine
 {
@@ -17,7 +16,8 @@ namespace Assets.Scripts.StateMachine
 
         public override void EnterState(IStateMachine sm)
         {
-            SceneManager.LoadScene("GameStartScene");
+            UnityEngine.Debug.Log("GameEntry State");
+            //SceneManager.LoadScene("GameStartScene");
             AudioManager.Play(SoundName.BGM1);
         }
 

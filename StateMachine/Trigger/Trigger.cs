@@ -4,16 +4,16 @@ namespace Assets.Scripts.StateMachine
 {
     public enum GameTriggerID
     {
-        GameLoadingFinish = 1>>0,
-        GameEntryButton = 1>>1,
-        GameRoomButton = 1>>2,
-        GameSelectTrap = 1>>3,
-        GamePlay = 1>>4,
-        GameResult = 1>>5,
-        GameStopNet = 1>>6,
-        GameStartCountDown = 1>>7,
-        GameReturnToRoom = 1>>8,
-        GameEntryGamePlay = 1>>9,
+        GameLoadingFinish = 1<<0,
+        GameEntryButton = 1<<1,
+        GameRoomButton = 1<<2,
+        GameSelectTrap = 1<<3,
+        GamePlay = 1<<4,
+        GameResult = 1<<5,
+        GameStopNet = 1<<6,
+        GameStartCountDown = 1<<7,
+        GameReturnToRoom = 1<<8,
+        GameEntryGamePlay = 1<<9,
     };
     /// <summary>
     /// Trigger

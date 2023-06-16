@@ -1,5 +1,6 @@
 ﻿
 
+using System.Diagnostics;
 using UnityEngine.SceneManagement;
 
 namespace Assets.Scripts.StateMachine
@@ -18,7 +19,7 @@ namespace Assets.Scripts.StateMachine
 
         public override void EnterState(IStateMachine sm)
         {
-
+            UnityEngine.Debug.Log("Stop Net State");
             //执行完后直接转到游戏入口
             sm.SetFlag(GameTriggerID.GameLoadingFinish);
         }

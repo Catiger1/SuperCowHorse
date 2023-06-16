@@ -1,4 +1,5 @@
 using Assets.Scripts.Common;
+using Assets.Scripts.StateMachine;
 using System.Xml;
 using UnityEngine;
 using UnityEngine.UI;
@@ -92,6 +93,7 @@ namespace Mirror.Examples.NetworkRoom
                     else if (NetworkClient.isConnected)
                         NetworkRoomManagerExt.singleton.StopClient();
                     else { }
+                    GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameStopNet);
                 });
             });
         }

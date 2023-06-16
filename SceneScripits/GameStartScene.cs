@@ -1,5 +1,6 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.StateMachine;
+using Mirror;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEditor;
@@ -8,21 +9,30 @@ using UnityEngine.UI;
 
 public class GameStartScene : MonoBehaviour
 {
-    public Button ButtonPlay;
+    public Button ButtonHost;
+    public Button ButtonClient;
     public Button ButtonSetting;
     public Button ButtonExit;
     void Start()
     {
-        ButtonPlay.onClick.AddListener(() =>
+        ButtonHost.onClick.AddListener(() =>
         {
-            GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameEntryButton);
+            GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameRoomButton);
+            NetworkManager.singleton.StartHost();
             AudioManager.Play(SoundName.Button);
         });
-        //ButtonSetting.onClick.AddListener(() => {
-        //    WindowsManager.Instance.OpenWindow(WindowsType.SettingWindow);
-        //    AudioManager.Play(SoundName.Button);
-        //});
-        //ButtonExit.onClick.AddListener(ExitGame);
+        ButtonClient.onClick.AddListener(() =>
+        {
+            GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameRoomButton);
+            NetworkManager.singleton.StartClient();
+            AudioManager.Play(SoundName.Button);
+        });
+        ButtonSetting.onClick.AddListener(() =>
+        {
+            WindowsManager.Instance.OpenWindow(WindowsType.SettingWindow);
+            AudioManager.Play(SoundName.Button);
+        });
+        ButtonExit.onClick.AddListener(ExitGame);
     }
 
     

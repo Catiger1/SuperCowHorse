@@ -11,7 +11,7 @@ namespace Assets.Scripts.StateMachine
         }
         public override bool HandleTrigger(IStateMachine sm)
         {
-            return (sm.GetAndClearFlag() & (int)GameTriggerID.GameEntryButton) != 0;
+            return sm.GetAndClearFlag(GameTriggerID.GameEntryButton);
         }
     }
 }

@@ -12,7 +12,7 @@ namespace Assets.Scripts.StateMachine
         }
         public override bool HandleTrigger(IStateMachine sm)
         {
-            return (sm.GetAndClearFlag() & (int)GameTriggerID.GameStartCountDown) != 0;
+            return sm.GetAndClearFlag(GameTriggerID.GameStartCountDown);
         }
     }
 }

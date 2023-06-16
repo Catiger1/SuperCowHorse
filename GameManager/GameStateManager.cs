@@ -3,8 +3,8 @@ using System;
 
 public class GameStateManager : MonoSingleton<GameStateManager>
 {
-    private Action ticks;
-    private GameStateMachine gameStateMachine;
+    private static Action ticks;
+    private static GameStateMachine gameStateMachine;
     public override void Init()
     {
         base.Init();

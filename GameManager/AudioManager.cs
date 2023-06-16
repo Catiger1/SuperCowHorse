@@ -18,7 +18,7 @@ public class SoundName
 public class AudioManager : MonoSingleton<AudioManager>
 {
     public static AudioMixer audioMixer;
-    private static Dictionary<string, AudioSource> audioDic;
+    private static Dictionary<string, AudioSource> audioDic = new Dictionary<string, AudioSource>();
     private static AudioSource curPlayingAudio;
     public override void Init()
     {
@@ -38,17 +38,17 @@ public class AudioManager : MonoSingleton<AudioManager>
     }
     private void InitSoundsAsset()
     {
-        audioDic = new Dictionary<string, AudioSource>();
         foreach (var sound in SoundsAsset.Instance.Sounds)
         {
             GameObject audioSourceGameObject = new GameObject(sound.audioClip.name);
-            audioSourceGameObject.transform.SetParent(transform);
+            //audioSourceGameObject.transform.SetParent(transform);
             AudioSource source= audioSourceGameObject.AddComponent<AudioSource>();
             source.clip = sound.audioClip;
             source.playOnAwake = sound.playOnAwake;
             source.loop = sound.loop;
             source.outputAudioMixerGroup = sound.mixerGroup;
             source.volume = sound.volunm;
+            DontDestroyOnLoad(audioSourceGameObject);
             audioDic.Add(source.clip.name, source);
         }
     }
