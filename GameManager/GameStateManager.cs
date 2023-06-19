@@ -1,6 +1,7 @@
 using Assets.Scripts.StateMachine;
 using System;
 
+
 public class GameStateManager : MonoSingleton<GameStateManager>
 {
     private static Action ticks;
@@ -8,6 +9,7 @@ public class GameStateManager : MonoSingleton<GameStateManager>
     public override void Init()
     {
         base.Init();
+        //DontDestroyOnLoad(this);
         InitComponent();
     }
     private void InitComponent()
@@ -23,6 +25,12 @@ public class GameStateManager : MonoSingleton<GameStateManager>
     {
         gameStateMachine.SetFlag(gameTriggerID);
     }
+
+    public void ChangeState(int id)
+    {
+        gameStateMachine.ChangeState((GameStateID)id);
+    }
+
     public void AddUpdateFunc(Action call)
     {
         ticks += call;
@@ -37,3 +45,4 @@ public class GameStateManager : MonoSingleton<GameStateManager>
         ticks?.Invoke();
     }
 }
+

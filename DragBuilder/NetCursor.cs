@@ -54,6 +54,15 @@ public class NetCursor : NetworkBehaviour
         if (flag == false)
             CmdUpdateCursorPosition(new Vector2(1000, 1000));
     }
+    [ServerCallback]
+    public void TrapStateEnd(Transform parent)
+    {
+        if(parent.childCount<=5-NetworkManager.singleton.numPlayers)
+        {
+            Debug.Log("Break;");
+        }
+    }
+
     [Command(requiresAuthority = false)]
     public void CmdSyncSelectTFPos(Transform tf,Vector2 pos)
     {
@@ -62,7 +71,9 @@ public class NetCursor : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSyncSelectTFPlaced(Transform tf, Transform parent)
     {
+        Transform parentTF = tf.parent;
         tf.SetParent(parent);
+        TrapStateEnd(parentTF);
     }
 
     void Update()
@@ -89,9 +100,10 @@ public class NetCursor : NetworkBehaviour
                     //Ð´³ÉÍøÂç
                     if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
                     {
-                        CmdSyncSelectTFPlaced(curSelectTF, GenerateGos);//curSelectTF.SetParent(GenerateGos);
-                        Active = false;//CmdSetActive(false);
+                        CmdSyncSelectTFPlaced(curSelectTF, GenerateGos);
+                        Active = false;
                         CmdUpdateCursorPosition(new Vector2(1000, 1000));
+                        //TrapStateEnd(parentTF);
                     }
                 }
             }
@@ -99,7 +111,7 @@ public class NetCursor : NetworkBehaviour
             if (curSelectTF != null)
             {
                 objectCanPlaced.ShowPosAfterPlaced(boxCollider, contactFilter2D, result);
-                CmdSyncSelectTFPos(curSelectTF,newCursorPos);//curSelectTF.position = newCursorPos;
+                CmdSyncSelectTFPos(curSelectTF,newCursorPos);
             }
         }
     }

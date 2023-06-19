@@ -1,4 +1,5 @@
 using Assets.Scripts.Common;
+using Assets.Scripts.StateMachine;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -111,7 +112,14 @@ namespace Mirror.Examples.NetworkRoom
             base.OnRoomClientDisconnect();
         }
 
+        public override void OnClientStateInternal(StateMessage msg)
+        {
+            Debug.Log("new state = " + msg.newStateID);
+            GameStateManager.Instance.ChangeState(msg.newStateID);
+        }
+
         bool isShowingStartBtn = false;
+
         public override void OnGUI()
         {
             base.OnGUI();
@@ -131,6 +139,10 @@ namespace Mirror.Examples.NetworkRoom
                     isShowingStartBtn = false;
                     btnRoomStart.gameObject.SetActive(false);
                     ServerChangeScene(GameplayScene);
+                    NetworkServer.SendToAll(new StateMessage
+                    {
+                        newStateID =(int)GameStateID.EnterGamePlayRoom
+                    });
                 });  
             }else if(isShowingStartBtn&&!allPlayersReady)
             {

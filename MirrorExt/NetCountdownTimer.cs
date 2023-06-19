@@ -4,6 +4,12 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum TimerFormatType
+{
+    Time,
+    Number
+}
+
 public class NetCountdownTimer : NetworkBehaviour
 {
     public Text timerText;
@@ -14,6 +20,7 @@ public class NetCountdownTimer : NetworkBehaviour
     private Tweener countdownTween;
     private Action endFunc;
     private Action startFunc;
+    public TimerFormatType timerType;
     private void OnEnable()
     {
         Reset();
@@ -28,7 +35,7 @@ public class NetCountdownTimer : NetworkBehaviour
     //[Command(requiresAuthority = false)]
     public void TimerValueChange(int _,int newValue)
     {
-        timerText.text = FormatTime(newValue);
+        timerText.text = FormatTime(newValue,timerType);
     }
 
     public void Reset()
@@ -55,10 +62,19 @@ public class NetCountdownTimer : NetworkBehaviour
             });
     }
 
-    private string FormatTime(float time)
+    private string FormatTime(float time,TimerFormatType timerType)
     {
-        int minutes = Mathf.FloorToInt(time / 60);
-        int seconds = Mathf.FloorToInt(time % 60);
-        return string.Format("{0:00}:{1:00}", minutes, seconds);
+        string retFormat;
+        if (timerType == TimerFormatType.Time)
+        {
+            int minutes = Mathf.FloorToInt(time / 60);
+            int seconds = Mathf.FloorToInt(time % 60);
+            retFormat = string.Format("{0:00}:{1:00}", minutes, seconds);
+        }
+        else
+        {
+            retFormat = ((int)time).ToString();
+        }
+        return retFormat;
     }
 }

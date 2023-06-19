@@ -20,6 +20,8 @@ namespace Assets.Scripts.StateMachine
             ResultState resultState = CreateState<ResultState>();
             GameStartCountDownState gameStartCountDownState = CreateState<GameStartCountDownState>();
             StopNetState stopNet = CreateState<StopNetState>();
+            EnterGamePlayRoomState enterGamePlayRoomState = CreateState<EnterGamePlayRoomState>();
+
 
             GameLoadingFinishTrigger gameLoadingTrigger = new GameLoadingFinishTrigger();
             GameRoomButtonTrigger gameRoomButtonTrigger = new GameRoomButtonTrigger();
@@ -44,6 +46,7 @@ namespace Assets.Scripts.StateMachine
             playState.AddMap(gameStopNetTrigger, GameStateID.StopNet);
             //选择陷阱
             playState.AddMap(gameSelectTrapTrigger, GameStateID.SelectTrap);
+            enterGamePlayRoomState.AddMap(gameSelectTrapTrigger, GameStateID.SelectTrap);
             //选择陷阱完成，进入倒计时
             selectTrapState.AddMap(gameCountDownTrigger, GameStateID.StartCountDown);
             //倒计时结束开始游戏
