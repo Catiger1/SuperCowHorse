@@ -46,7 +46,6 @@ namespace Assets.Scripts.StateMachine
         }
         public void Tick()
         {
-           
             Curstate.Reason(this);
             Curstate.ActionState(this);
         }

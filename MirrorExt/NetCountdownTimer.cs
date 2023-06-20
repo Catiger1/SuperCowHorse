@@ -58,8 +58,16 @@ public class NetCountdownTimer : NetworkBehaviour
             .OnComplete(() => {
                 endFunc?.Invoke();
                 countdownTween = null;
+                SetActive(false);
                 Debug.Log("µ¹¼ÆÊ±½áÊø£¡");
             });
+    }
+
+    public void StopTimerAndCallEndFunc()
+    {
+        countdownTween.Kill();
+        countdownTween = null;
+        endFunc?.Invoke();
     }
 
     private string FormatTime(float time,TimerFormatType timerType)
@@ -76,5 +84,13 @@ public class NetCountdownTimer : NetworkBehaviour
             retFormat = ((int)time).ToString();
         }
         return retFormat;
+    }
+
+    public void SetActive(bool flag)
+    {
+        if (flag)
+            transform.localScale = new Vector3(1, 1, 1);
+        else
+            transform.localScale = Vector3.zero;
     }
 }

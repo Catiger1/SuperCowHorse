@@ -46,6 +46,7 @@ namespace Mirror.Examples.NetworkRoom
         public PhysicsMaterial2D ZeroFrition;
         public PhysicsMaterial2D NormalFrition;
 
+        public bool CanControl { get; set; }
         public override void OnStartAuthority()
         {
             InitComponent();
@@ -192,7 +193,7 @@ namespace Mirror.Examples.NetworkRoom
         // Update is called once per frame
         private void Update()
         {
-            if (!isLocalPlayer) return;
+            if (!isLocalPlayer|| !CanControl) return;
 
             for (i = InputDetectionList.Count - 1; i >= 0; i--)
             {

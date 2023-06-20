@@ -1,4 +1,5 @@
 using Assets.Scripts.Common;
+using Assets.Scripts.StateMachine;
 using Mirror;
 using UnityEngine;
 
@@ -59,7 +60,10 @@ public class NetCursor : NetworkBehaviour
     {
         if(parent.childCount<=5-NetworkManager.singleton.numPlayers)
         {
-            Debug.Log("Break;");
+            NetworkServer.SendToAll(new StateMessage
+            {
+                newStateID = (int)GameStateID.StartCountDown
+            });
         }
     }
 

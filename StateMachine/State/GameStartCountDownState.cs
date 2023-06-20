@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Mirror;
+using UnityEngine;
 
 namespace Assets.Scripts.StateMachine.State
 {
@@ -20,7 +17,10 @@ namespace Assets.Scripts.StateMachine.State
 
         public override void EnterState(IStateMachine sm)
         {
-
+            UnityEngine.Debug.Log("Entry Game Start Count Down State");
+            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).AutoCloseImmediately();
+            Transform spawnPos = GameObject.FindWithTag("Respawn").transform;
+            NetworkClient.localPlayer.transform.position = spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position;
         }
 
         public override void ExitState(IStateMachine sm)
