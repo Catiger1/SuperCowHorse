@@ -19,7 +19,6 @@ public class NetworkGamePlayStart : NetworkBehaviour
     [ServerCallback]
     void StartGameProgress()
     {
-        //if(isServer)
         NetworkServer.SendToAll(new StateMessage
         {
             newStateID = (int)GameStateID.SelectTrap

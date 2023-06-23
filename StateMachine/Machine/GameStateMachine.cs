@@ -16,12 +16,12 @@ namespace Assets.Scripts.StateMachine
             GameEntryState entryState = CreateState<GameEntryState>();
             RoomState roomState = CreateState<RoomState>();
             SelectTrapState selectTrapState = CreateState<SelectTrapState>();
+            SetTrapState setTrapState = CreateState<SetTrapState>();
             PlayState playState = CreateState<PlayState>();
             ResultState resultState = CreateState<ResultState>();
             GameStartCountDownState gameStartCountDownState = CreateState<GameStartCountDownState>();
             StopNetState stopNet = CreateState<StopNetState>();
             EnterGamePlayRoomState enterGamePlayRoomState = CreateState<EnterGamePlayRoomState>();
-
 
             GameLoadingFinishTrigger gameLoadingTrigger = new GameLoadingFinishTrigger();
             GameRoomButtonTrigger gameRoomButtonTrigger = new GameRoomButtonTrigger();
@@ -32,7 +32,7 @@ namespace Assets.Scripts.StateMachine
             GamePlayTrigger gamePlayTrigger = new GamePlayTrigger();
             GameResultTrigger gameResultTrigger = new GameResultTrigger();
             GameReturnToRoomTrigger gameReturnToRoomTrigger = new GameReturnToRoomTrigger();
-
+            GameSetTrapTrigger gameSetTrapTrigger = new GameSetTrapTrigger();
             //进入开始界面
             loadingState.AddMap(gameLoadingTrigger, GameStateID.EnterGame);
             stopNet.AddMap(gameLoadingTrigger, GameStateID.EnterGame);
@@ -47,8 +47,10 @@ namespace Assets.Scripts.StateMachine
             //选择陷阱
             playState.AddMap(gameSelectTrapTrigger, GameStateID.SelectTrap);
             enterGamePlayRoomState.AddMap(gameSelectTrapTrigger, GameStateID.SelectTrap);
-            //选择陷阱完成，进入倒计时
-            selectTrapState.AddMap(gameCountDownTrigger, GameStateID.StartCountDown);
+            //选择陷阱完成，进入放置状态倒计时
+            selectTrapState.AddMap(gameSetTrapTrigger, GameStateID.SetTrap);
+            //放置陷阱完成，游戏开始倒计时
+            setTrapState.AddMap(gameCountDownTrigger, GameStateID.StartCountDown);
             //倒计时结束开始游戏
             gameStartCountDownState.AddMap(gamePlayTrigger, GameStateID.Play);
             //游戏结算

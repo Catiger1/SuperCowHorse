@@ -28,6 +28,8 @@ namespace Assets.Scripts.StateMachine
         protected abstract void Initialize();
         public void ChangeState(Enum state_id)
         {
+            if (Curstate!=null&&Curstate.StateID.Equals(state_id))
+                return;
             Curstate?.ExitState(this);
             flag = 0;
             Curstate = states.Find((s)=> { return s.StateID.Equals(state_id); });

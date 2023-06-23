@@ -18,6 +18,7 @@ namespace Mirror.Examples.NetworkRoom
         [Tooltip("Reward Prefab for the Spawner")]
         public GameObject rewardPrefab;
 
+        public int SelectCount;
         public static new NetworkRoomManagerExt singleton { get; private set; }
 
         //public NetworkRoomPlayerExt LocalPlayer { get; set; }

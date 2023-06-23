@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
 
 namespace Assets.Scripts.StateMachine.State
 {
@@ -27,7 +22,7 @@ namespace Assets.Scripts.StateMachine.State
 
         public override void ExitState(IStateMachine sm)
         {
-
+            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).AutoCloseImmediately();
         }
     }
 }

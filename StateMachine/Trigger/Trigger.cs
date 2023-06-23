@@ -14,6 +14,7 @@ namespace Assets.Scripts.StateMachine
         GameStartCountDown = 1<<7,
         GameReturnToRoom = 1<<8,
         GameEntryGamePlay = 1<<9,
+        GameSetTrap = 1<<10,
     };
     /// <summary>
     /// Trigger

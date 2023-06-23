@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 namespace Assets.Scripts.StateMachine
 {
@@ -15,6 +14,7 @@ namespace Assets.Scripts.StateMachine
         Play = 1 << 6,
         Result = 1 << 7,
         StopNet = 1 << 8,
+        SetTrap = 1 << 9,
     };
     /// <summary>
     /// State

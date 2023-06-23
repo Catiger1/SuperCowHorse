@@ -13,7 +13,6 @@ public class GameNetworkManager : NetworkManager
     // Overrides the base singleton so we don't
     // have to cast to this type everywhere.
     public static new GameNetworkManager singleton { get; private set; }
-
     /// <summary>
     /// Runs on both Server and Client
     /// Networking is NOT initialized when this fires

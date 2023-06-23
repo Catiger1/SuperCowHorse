@@ -1,6 +1,7 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.StateMachine;
 using Mirror;
+using Mirror.Examples.NetworkRoom;
 using UnityEngine;
 
 public class NetCursor : NetworkBehaviour
@@ -12,7 +13,7 @@ public class NetCursor : NetworkBehaviour
     RaycastHit2D hit;
     public LayerMask layer;
     public Transform curSelectTF;
-    
+
     //ºÏ≤‚ «∑Òø…“‘∑≈÷√
     Collider2D boxCollider;
     Collider2D[] result;
@@ -20,16 +21,20 @@ public class NetCursor : NetworkBehaviour
     ObjectCanPlaced objectCanPlaced;
     //∑¿∂∂
     float delayTime = 0.2f;
-    bool canPlace = false;
+    public bool CanPlace = false;
 
     private Transform GenerateGos;
     public GameObject localPlayer;
+
+    Transform parentTF;
+
     public bool islocal = false;
     //[SyncVar(hook = nameof(CmdSetPos))]
     public bool Active = false;
+
     private void Start()
     {
-        offset = GetComponent<SpriteRenderer>().size/2;
+        offset = GetComponent<SpriteRenderer>().size / 2;
         offset.x = -offset.x;
         result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
@@ -45,39 +50,59 @@ public class NetCursor : NetworkBehaviour
     {
         localPlayer = go;
         islocal = localPlayer.GetComponent<NetworkIdentity>().isLocalPlayer;
-        if(islocal)
+        if (islocal)
             WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
     }
 
     [Command(requiresAuthority = false)]
-    public void CmdSetPos(bool _,bool flag)
+    public void CmdSetPos(bool _, bool flag)
     {
         if (flag == false)
             CmdUpdateCursorPosition(new Vector2(1000, 1000));
     }
-    [ServerCallback]
-    public void TrapStateEnd(Transform parent)
-    {
-        if(parent.childCount<=5-NetworkManager.singleton.numPlayers)
-        {
-            NetworkServer.SendToAll(new StateMessage
-            {
-                newStateID = (int)GameStateID.StartCountDown
-            });
-        }
-    }
 
     [Command(requiresAuthority = false)]
-    public void CmdSyncSelectTFPos(Transform tf,Vector2 pos)
+    public void CmdSelectTF(Transform tf)
+    {
+        tf.SetParent(GenerateGos);
+    }
+
+    [ServerCallback]
+    public void NetSendChangeSetTrapStateMessage()
+    {
+        NetworkServer.SendToAll(new StateMessage
+        {
+            newStateID = (int)GameStateID.SetTrap
+        });
+    }
+    [ServerCallback]
+    public void NetSendChangeCountDownStateMessage()
+    {
+        NetworkServer.SendToAll(new StateMessage
+        {
+            newStateID = (int)GameStateID.StartCountDown
+        });
+    }
+    [Command(requiresAuthority = false)]
+    public void CmdSyncSelectTFPos(Transform tf, Vector2 pos)
     {
         tf.position = pos;
     }
     [Command(requiresAuthority = false)]
-    public void CmdSyncSelectTFPlaced(Transform tf, Transform parent)
+    public void CmdSyncSelectTFPlaced()
     {
-        Transform parentTF = tf.parent;
-        tf.SetParent(parent);
-        TrapStateEnd(parentTF);
+        Debug.Log("Select");
+        NetworkRoomManagerExt.singleton.SelectCount++;
+        if (NetworkRoomManagerExt.singleton.SelectCount >= NetworkManager.singleton.numPlayers)
+            NetSendChangeSetTrapStateMessage();
+    }
+    [Command(requiresAuthority = false)]
+    public void CmdSyncSetTFPlaced()
+    {
+        Debug.Log("Placed");
+        NetworkRoomManagerExt.singleton.SelectCount--;
+        if (NetworkRoomManagerExt.singleton.SelectCount <= 0)
+            NetSendChangeCountDownStateMessage();
     }
 
     void Update()
@@ -96,17 +121,29 @@ public class NetCursor : NetworkBehaviour
                         curSelectTF = hit.collider.transform;
                         boxCollider = hit.collider;
                         objectCanPlaced = boxCollider.GetComponent<ObjectCanPlaced>();
-                        this.DelayCallBack(delayTime, () => { canPlace = true; });
+
+                        if (!objectCanPlaced.IsSeleted)
+                        {
+                            parentTF = curSelectTF.parent;
+                            CmdSelectTF(curSelectTF);// curSelectTF.SetParent(GenerateGos);
+                            this.DelayCallBack(delayTime, () =>
+                            {
+                                //CanPlace = true;
+                                objectCanPlaced.IsSeleted = true;
+                            });
+                            CmdSyncSelectTFPlaced();
+                        }
                     }
                 }
-                else if (canPlace)
+                else if (CanPlace)
                 {
                     //–¥≥…Õ¯¬Á
                     if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
                     {
-                        CmdSyncSelectTFPlaced(curSelectTF, GenerateGos);
-                        Active = false;
-                        CmdUpdateCursorPosition(new Vector2(1000, 1000));
+                        //Active = false;
+                        CmdSyncSetTFPlaced();
+                        SetActive(false);
+                        //CmdUpdateCursorPosition(new Vector2(1000, 1000));
                         //TrapStateEnd(parentTF);
                     }
                 }
@@ -120,11 +157,33 @@ public class NetCursor : NetworkBehaviour
         }
     }
 
-    private void OnDisable()
+    public void SetActive(bool flag)
     {
-        curSelectTF = null;
-        canPlace = false;
-        objectCanPlaced = null;
+        if(flag)
+        {
+            Active = true;
+            CmdUpdateCursorPosition(new Vector2(0,0));
+        }else
+        {
+            //if (Active)
+            //{
+            //   GameObject.Destroy(curSelectTF.gameObject);
+            //   Debug.Log("Destroy curSelectTF");
+            //}
+            Debug.Log("SetActive false");
+            Active = false;
+            CmdUpdateCursorPosition(new Vector2(1000, 1000));
+            curSelectTF = null;
+            CanPlace = false;
+            objectCanPlaced = null;
+        }
     }
+
+    //private void OnDisable()
+    //{
+    //    curSelectTF = null;
+    //    canPlace = false;
+    //    objectCanPlaced = null;
+    //}
 
 }
