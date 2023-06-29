@@ -47,6 +47,7 @@ namespace Mirror.Examples.NetworkRoom
         public PhysicsMaterial2D NormalFrition;
 
         public bool CanControl { get; set; }
+
         public override void OnStartAuthority()
         {
             InitComponent();
@@ -91,6 +92,7 @@ namespace Mirror.Examples.NetworkRoom
         private void Move()
         {
             direction = Input.GetAxis("Horizontal");
+            if (!CanControl) direction =0;
             if (direction != 0)
             {
                 _rigidbody.velocity = new Vector2(direction * speed, _rigidbody.velocity.y);
@@ -127,6 +129,7 @@ namespace Mirror.Examples.NetworkRoom
         }
         private void Jump()
         {
+            if (!CanControl) return;
             if ((status & (int)Status.Jump) == 0 && ((status &= (int)Status.Jump) == 0) && buttonJump)
             {
                 buttonJump = false;
@@ -193,7 +196,7 @@ namespace Mirror.Examples.NetworkRoom
         // Update is called once per frame
         private void Update()
         {
-            if (!isLocalPlayer|| !CanControl) return;
+            if (!isLocalPlayer) return;
 
             for (i = InputDetectionList.Count - 1; i >= 0; i--)
             {

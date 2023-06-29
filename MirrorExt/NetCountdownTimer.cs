@@ -46,6 +46,7 @@ public class NetCountdownTimer : NetworkBehaviour
 
     public void StartTimer()
     {
+        Reset();
         startFunc?.Invoke();
         if(countdownTween==null)
         countdownTween = DOTween.To(() => countdownDuration, x => countdownDuration = x, 0.0f, countdownDuration)

@@ -1,5 +1,6 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.StateMachine;
+using Mirror.Examples.NetworkRoomExt;
 using System;
 using UnityEngine;
 using UnityEngine.UI;
@@ -19,8 +20,17 @@ namespace Mirror.Examples.NetworkRoom
         public GameObject rewardPrefab;
 
         public int SelectCount;
+        public int AliveCount;
+        public int TotalScore;
+        public int MaxTotalScore = 5;
         public static new NetworkRoomManagerExt singleton { get; private set; }
 
+        public static bool IsGameFinish()
+        {
+            bool flag = (singleton.TotalScore >= singleton.MaxTotalScore) && NetworkServer.active && Utils.IsSceneActive(singleton.GameplayScene);
+            if(flag)singleton.ServerChangeScene(singleton.RoomScene);
+            return flag;
+        }
         //public NetworkRoomPlayerExt LocalPlayer { get; set; }
         /// <summary>
         /// Runs on both Server and Client
@@ -60,9 +70,8 @@ namespace Mirror.Examples.NetworkRoom
         /// <returns>true unless some code in here decides it needs to abort the replacement</returns>
         public override bool OnRoomServerSceneLoadedForPlayer(NetworkConnectionToClient conn, GameObject roomPlayer, GameObject gamePlayer)
         {
-            //PlayerScore playerScore = gamePlayer.GetComponent<PlayerScore>();
-            //playerScore.index = roomPlayer.GetComponent<NetworkRoomPlayer>().index;
             PlayerSelector playerSelector = gamePlayer.GetComponent<PlayerSelector>();
+            gamePlayer.GetComponent<PlayerScore>().index = roomPlayer.GetComponent<NetworkRoomPlayerExt>().index;
             playerSelector.CharacterIndex = roomPlayer.GetComponent<NetworkRoomPlayerExt>().CurSelectCharacterIndex;//roomPlayer.GetComponent<NetworkRoomManagerExt>().room;
             return true;
         }
@@ -97,7 +106,6 @@ namespace Mirror.Examples.NetworkRoom
             showStartButton = true;
 #endif
         }
-
         public override void OnStartClient()
         {
             base.OnStartClient();

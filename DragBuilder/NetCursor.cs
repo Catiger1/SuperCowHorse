@@ -1,8 +1,10 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.StateMachine;
 using Mirror;
+using Mirror.Examples.NetworkRoomExt;
 using Mirror.Examples.NetworkRoom;
 using UnityEngine;
+using System;
 
 public class NetCursor : NetworkBehaviour
 {
@@ -26,7 +28,7 @@ public class NetCursor : NetworkBehaviour
     private Transform GenerateGos;
     public GameObject localPlayer;
 
-    Transform parentTF;
+    public SpriteRenderer spriteRenderer;
 
     public bool islocal = false;
     //[SyncVar(hook = nameof(CmdSetPos))]
@@ -40,6 +42,23 @@ public class NetCursor : NetworkBehaviour
         contactFilter2D = new ContactFilter2D();
         CmdUpdateCursorPosition(new Vector2(1000, 1000));
     }
+
+    [ClientRpc]
+    void RpcSetSpriteRendererColor(int index)
+    {
+        if (index > 0)
+            spriteRenderer.color = Color.red;
+        else if (index > 1)
+            spriteRenderer.color = Color.yellow;
+        else if (index > 2)
+            spriteRenderer.color = Color.black;
+    }
+    [Command(requiresAuthority = false)]
+    public void UpdateSpriteColor(int index)
+    {
+        RpcSetSpriteRendererColor(index);
+    }
+
     [Command(requiresAuthority = false)]
     private void CmdUpdateCursorPosition(Vector2 position)
     {
@@ -51,7 +70,11 @@ public class NetCursor : NetworkBehaviour
         localPlayer = go;
         islocal = localPlayer.GetComponent<NetworkIdentity>().isLocalPlayer;
         if (islocal)
+        {
             WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
+            UpdateSpriteColor(localPlayer.GetComponent<PlayerScore>().index);
+        }
+        //go.GetComponent<PlayerCursor>().ChangeCursorColor(go.GetComponent<PlayerScore>().index);
     }
 
     [Command(requiresAuthority = false)]
@@ -118,13 +141,13 @@ public class NetCursor : NetworkBehaviour
                     hit = Physics2D.Raycast(newCursorPos, Vector2.zero, 100f, layer);
                     if (hit.collider != null)
                     {
-                        curSelectTF = hit.collider.transform;
                         boxCollider = hit.collider;
                         objectCanPlaced = boxCollider.GetComponent<ObjectCanPlaced>();
 
                         if (!objectCanPlaced.IsSeleted)
                         {
-                            parentTF = curSelectTF.parent;
+                            curSelectTF = hit.collider.transform;
+                            //parentTF = curSelectTF.parent;
                             CmdSelectTF(curSelectTF);// curSelectTF.SetParent(GenerateGos);
                             this.DelayCallBack(delayTime, () =>
                             {
@@ -142,7 +165,11 @@ public class NetCursor : NetworkBehaviour
                     {
                         //Active = false;
                         CmdSyncSetTFPlaced();
+                        PlacedPosAdjust(curSelectTF, boxCollider.bounds.center, boxCollider.bounds.size.y);
+                        curSelectTF.GetComponent<SpriteRenderer>().color = Color.white;
+                        //CmdSyncSelectTFPos(curSelectTF, newCursorPos);
                         SetActive(false);
+
                         //CmdUpdateCursorPosition(new Vector2(1000, 1000));
                         //TrapStateEnd(parentTF);
                     }
@@ -156,7 +183,11 @@ public class NetCursor : NetworkBehaviour
             }
         }
     }
-
+    [Command(requiresAuthority = false)]
+    public void PlacedPosAdjust(Transform tf,Vector2 pos,float colHeight)
+    {
+        tf.GetComponent<ObjectCanPlaced>().PlacedPosAdjust(pos,colHeight);
+    }
     public void SetActive(bool flag)
     {
         if(flag)

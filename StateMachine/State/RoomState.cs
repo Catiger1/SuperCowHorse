@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿
+using Mirror.Examples.NetworkRoom;
 
 namespace Assets.Scripts.StateMachine.State
 {
@@ -22,6 +18,8 @@ namespace Assets.Scripts.StateMachine.State
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("RoomState");
+            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).Clear();
+            NetworkRoomManagerExt.singleton.TotalScore = 0;
         }
 
         public override void ExitState(IStateMachine sm)

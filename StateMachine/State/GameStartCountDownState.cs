@@ -1,4 +1,5 @@
 ﻿using Mirror;
+using Mirror.Examples.NetworkRoomExt;
 using UnityEngine;
 
 namespace Assets.Scripts.StateMachine.State
@@ -23,8 +24,11 @@ namespace Assets.Scripts.StateMachine.State
             {
                 spawnPos.GetChild(i).GetComponent<BoxCollider2D>().enabled = false;
             }
-            
-            NetworkClient.localPlayer.transform.position = spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position;
+            ResetPlayer(spawnPos);
+            Transform player = NetworkClient.localPlayer.transform;
+            player.position = spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position;
+            Debug.Log(spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position);
+            //NetworkClient.localPlayer.GetComponent<PlayerScore>().isDeath = false;
             GameObject[] timers = GameObject.FindGameObjectsWithTag("Timer");
             for (int i = 0; i < timers.Length; i++)
             {
@@ -41,6 +45,17 @@ namespace Assets.Scripts.StateMachine.State
                 }
             }
         }
+        [ServerCallback]
+        public void ResetPlayer(Transform pos)
+        {
+            GameObject[] players = GameObject.FindGameObjectsWithTag("Player");
+            foreach (GameObject player in players)
+            {
+                player.GetComponent<PlayerScore>().isDeath = false;
+                //player.transform.position = pos.GetChild(player.GetComponent<PlayerSelector>().CharacterIndex).position;
+            }
+        }
+
         [ServerCallback]
         public void SendChangeStateMessage()
         {

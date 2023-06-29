@@ -1,6 +1,6 @@
 using UnityEngine;
 
-namespace Mirror.Examples.NetworkRoom
+namespace Mirror.Examples.NetworkRoomExt
 {
     public class PlayerScore : NetworkBehaviour
     {
@@ -10,9 +10,24 @@ namespace Mirror.Examples.NetworkRoom
         [SyncVar]
         public uint score;
 
-        void OnGUI()
+        [SyncVar]
+        public bool isDeath;
+
+        //[SyncVar]
+        //public bool dogfall;
+
+        public void AddScore()
         {
-            GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), $"P{index}: {score:0000000}");
+            score++;
         }
+        //[Command]
+        //public void IndexChange(int _,int newIndex)
+        //{
+        //    GetComponent<PlayerCursor>().ChangeCursorColor(newIndex);
+        //}
+        //void OnGUI()
+        //{
+        //    GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), $"P{index}: {score:0000000}");
+        //}
     }
 }

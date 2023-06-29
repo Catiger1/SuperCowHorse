@@ -11,7 +11,7 @@ public class AudioGroupType
 public class SoundName
 {
     public static string BGM0 = "BGM0";
-    public static string BGM1 = "BGM0";
+    public static string BGM1 = "BGM1";
     public static string Button = "Button";
 }
 
@@ -20,6 +20,7 @@ public class AudioManager : MonoSingleton<AudioManager>
     public static AudioMixer audioMixer;
     private static Dictionary<string, AudioSource> audioDic = new Dictionary<string, AudioSource>();
     private static AudioSource curPlayingAudio;
+    private bool isInit = false;
     public override void Init()
     {
         base.Init();
@@ -38,6 +39,7 @@ public class AudioManager : MonoSingleton<AudioManager>
     }
     private void InitSoundsAsset()
     {
+        if (isInit) return;
         foreach (var sound in SoundsAsset.Instance.Sounds)
         {
             GameObject audioSourceGameObject = new GameObject(sound.audioClip.name);
@@ -51,10 +53,13 @@ public class AudioManager : MonoSingleton<AudioManager>
             DontDestroyOnLoad(audioSourceGameObject);
             audioDic.Add(source.clip.name, source);
         }
+        isInit = true;
     }
 
     public static void Play(string name)
     {
+        if (!Instance.isInit)
+            Instance.InitSoundsAsset();
         if (audioDic.ContainsKey(name))
         {
             if (audioDic[name].isPlaying)

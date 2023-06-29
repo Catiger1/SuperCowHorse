@@ -1,4 +1,6 @@
-﻿using Mirror;
+﻿using Assets.Scripts.Common;
+using Mirror;
+using Mirror.Examples.NetworkRoom;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using PlayerInputManager = Mirror.Examples.NetworkRoom.PlayerInputManager;
@@ -20,6 +22,8 @@ namespace Assets.Scripts.StateMachine.State
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("Entry Play State");
+            NetworkRoomManagerExt.singleton.AliveCount = NetworkRoomManagerExt.singleton.numPlayers;
+
             NetworkClient.localPlayer.GetComponent<PlayerInputManager>().CanControl = true;
             GameObject[] timers = GameObject.FindGameObjectsWithTag("Timer");
             for (int i = 0; i < timers.Length; i++)
@@ -47,13 +51,16 @@ namespace Assets.Scripts.StateMachine.State
 
         public override void ExitState(IStateMachine sm)
         {
+            GameObject spawnPos = GameObject.FindWithTag("Respawn");
+            if(spawnPos != null) { 
+            //Transform spawnPos = GameObject.FindWithTag("Respawn").transform;
             NetworkClient.localPlayer.GetComponent<PlayerInputManager>().CanControl = false;
             netCountdownTimer.StopTimerAndCallEndFunc();
-
-            Transform spawnPos = GameObject.FindWithTag("Respawn").transform;
-            for (int i = 0; i < spawnPos.childCount; i++)
-            {
-                spawnPos.GetChild(i).GetComponent<BoxCollider2D>().enabled = true;
+            
+                for (int i = 0; i < spawnPos.transform.childCount; i++)
+                {
+                    spawnPos.transform.GetChild(i).GetComponent<BoxCollider2D>().enabled = true;
+                }
             }
         }
     }

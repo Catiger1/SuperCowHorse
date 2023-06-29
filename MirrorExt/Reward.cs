@@ -1,3 +1,4 @@
+using Mirror.Examples.MultipleAdditiveScenes;
 using UnityEngine;
 
 namespace Mirror.Examples.NetworkRoom

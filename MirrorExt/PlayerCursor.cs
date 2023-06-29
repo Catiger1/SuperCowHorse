@@ -1,6 +1,6 @@
+using Assets.Scripts.Common;
 using Mirror;
-using System.Collections;
-using System.Collections.Generic;
+using Mirror.Examples.NetworkRoomExt;
 using UnityEngine;
 
 public class PlayerCursor : NetworkBehaviour
@@ -11,7 +11,18 @@ public class PlayerCursor : NetworkBehaviour
     {
         if(isLocalPlayer)
             CmdSpawnCursor();
+        //ChangeCursorColor(GetComponent<PlayerScore>().index);
     }
+
+    //public void ChangeCursorColor(int index)
+    //{
+    //    if(index>0)
+    //        CursorGo.GetComponent<SpriteRenderer>().color = Color.red;
+    //    else if(index>1)
+    //        CursorGo.GetComponent<SpriteRenderer>().color = Color.yellow;
+    //    else if(index>2)
+    //        CursorGo.GetComponent<SpriteRenderer>().color = Color.black;
+    //}
 
     [Command(requiresAuthority = false)]
     public void CmdSpawnCursor()
@@ -20,6 +31,7 @@ public class PlayerCursor : NetworkBehaviour
         CursorGo = GameObject.Instantiate(go);
         NetworkServer.Spawn(CursorGo);
         RpcSetLocalPlayer(CursorGo);
+        //Debug.Log("cursor="+GetComponent<PlayerScore>().index);
     }
     [ClientRpc]
     public void RpcSetLocalPlayer(GameObject go)
@@ -32,14 +44,4 @@ public class PlayerCursor : NetworkBehaviour
         if (CursorGo != null)
            Destroy(CursorGo);
     }
-
-    //private void FixedUpdate()
-    //{
-    //    if(CursorGo!=null&& !setFlag)
-    //    {
-            
-    //        setFlag = true;
-    //        Debug.Log("Set True");
-    //    }
-    //}
 }
