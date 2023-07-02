@@ -147,12 +147,10 @@ public class NetCursor : NetworkBehaviour
                         if (!objectCanPlaced.IsSeleted)
                         {
                             curSelectTF = hit.collider.transform;
-                            //parentTF = curSelectTF.parent;
-                            CmdSelectTF(curSelectTF);// curSelectTF.SetParent(GenerateGos);
+                            CmdSelectTF(curSelectTF);
                             this.DelayCallBack(delayTime, () =>
                             {
-                                //CanPlace = true;
-                                objectCanPlaced.IsSeleted = true;
+                                CmdObjectSelectState(objectCanPlaced.transform);// objectCanPlaced.IsSeleted = true;
                             });
                             CmdSyncSelectTFPlaced();
                         }
@@ -166,6 +164,7 @@ public class NetCursor : NetworkBehaviour
                         //Active = false;
                         CmdSyncSetTFPlaced();
                         PlacedPosAdjust(curSelectTF, boxCollider.bounds.center, boxCollider.bounds.size.y);
+                        CmdLayerSetting(curSelectTF);//curSelectTF.GetComponent<SpriteRenderer>().sortingLayerID = SortingLayer.NameToID("DragBuilder");
                         curSelectTF.GetComponent<SpriteRenderer>().color = Color.white;
                         //CmdSyncSelectTFPos(curSelectTF, newCursorPos);
                         SetActive(false);
@@ -183,6 +182,30 @@ public class NetCursor : NetworkBehaviour
             }
         }
     }
+
+    [Command(requiresAuthority = false)]
+    public void CmdObjectSelectState(Transform tf)
+    {
+        RpcObjectSelectState(tf);
+    }
+    [ClientRpc]
+    public void RpcObjectSelectState(Transform tf)
+    {
+        tf.GetComponent<ObjectCanPlaced>().IsSeleted = true;
+    }
+
+    [Command(requiresAuthority = false)]
+    public void CmdLayerSetting(Transform tf)
+    {
+        RpcLayerSetting(tf);
+    }
+    [ClientRpc]
+    public void RpcLayerSetting(Transform tf)
+    {
+        tf.GetComponent<ObjectCanPlaced>().IsSeleted = true;
+        tf.GetComponent<SpriteRenderer>().sortingLayerID = SortingLayer.NameToID("DragBuilder");
+    }
+
     [Command(requiresAuthority = false)]
     public void PlacedPosAdjust(Transform tf,Vector2 pos,float colHeight)
     {

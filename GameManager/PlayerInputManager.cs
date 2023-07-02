@@ -1,3 +1,5 @@
+using Assets.Scripts.Common;
+using Assets.Scripts.GameManager;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -42,6 +44,11 @@ namespace Mirror.Examples.NetworkRoom
         private float fallMultiplier = 2.5f;
         private float jumpMultiplier = 2f;
 
+        //Fire Detection
+        private float lastFireTime;
+        public float FireInterval = 1f;
+        public Transform FireTF;
+        public GameObject Bullet;
         //Frition
         public PhysicsMaterial2D ZeroFrition;
         public PhysicsMaterial2D NormalFrition;
@@ -52,7 +59,7 @@ namespace Mirror.Examples.NetworkRoom
         {
             InitComponent();
             this.enabled = true;
-            SetComponent(NetworkRoomManagerExt.singleton.clientIndex);
+            SetComponent();
         }
         public override void OnStopAuthority()
         {
@@ -71,6 +78,28 @@ namespace Mirror.Examples.NetworkRoom
             AddDetection(() => { return (status & (int)Status.OnGround) == 0; }, AddDoubleJump2Command);
             //Add OnGround Detection
             AddDetection(() => { return true; }, OnGround);
+            AddDetection(Fire,OnFire);
+        }
+
+        private bool Fire()
+        {
+            return Input.GetKeyDown(KeyCode.J)&&(Time.time- lastFireTime>= FireInterval);
+        }
+        private void OnFire()
+        {
+            Debug.Log("Fire");
+            lastFireTime = Time.time;
+            GenerateBulletOnServer();//NetworkServer.Spawn(tf.gameObject);
+        }
+        [Command(requiresAuthority = false)]
+        public void GenerateBulletOnServer()
+        {
+            Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
+            NetworkPrefabPoolManager.Instance.CreateObject(Bullet.name, Bullet, FireTF.position, Quaternion.Euler(rotation),gameObject);
+            //Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
+            //Transform tf = GameObject.Instantiate(Bullet, FireTF.position, Quaternion.Euler(rotation)).transform;
+            //tf.GetComponent<Bullet>().Owner = gameObject;
+            //NetworkServer.Spawn(tf.gameObject);
         }
 
         private bool GetJump()
@@ -83,10 +112,9 @@ namespace Mirror.Examples.NetworkRoom
             playerSize = GetComponent<SpriteRenderer>().bounds.size;
             _animator = GetComponent<Animator>();
         }
-        public void SetComponent(int index)
+        public void SetComponent()
         {
             AddInputDetection();
-            //boxSize = new Vector2(playerSize.x * 0.6f, boxHeight);
         }
 
         private void Move()

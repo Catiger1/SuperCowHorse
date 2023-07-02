@@ -41,7 +41,9 @@ namespace Assets.Scripts.StateMachine.State
                     });
                     netCountdownTimer.SetActive(true);
                     netCountdownTimer.StartTimer();
-                    break;
+                }else
+                {
+                    timers[i].GetComponent<NetCountdownTimer>().Reset();
                 }
             }
         }

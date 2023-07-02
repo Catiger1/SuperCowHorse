@@ -13,10 +13,11 @@ public enum TimerFormatType
 public class NetCountdownTimer : NetworkBehaviour
 {
     public Text timerText;
-    [SyncVar(hook = nameof(TimerValueChange))]
+    [SyncVar]//(hook = nameof(TimerValueChange)
     public int SynTime = 30;
     private float countdownDuration = 30.0f;
     public int maxCountdownTime = 30;
+    public int CurTextValue = 30;
     private Tweener countdownTween;
     private Action endFunc;
     private Action startFunc;
@@ -33,17 +34,30 @@ public class NetCountdownTimer : NetworkBehaviour
         return this;
     }
     //[Command(requiresAuthority = false)]
-    public void TimerValueChange(int _,int newValue)
-    {
-        timerText.text = FormatTime(newValue,timerType);
-    }
+    //public void TimerValueChange(int _,int newValue)
+    //{
+    //    timerText.text = FormatTime(newValue,timerType);
+    //}
 
     public void Reset()
     {
+        CurTextValue = (int)maxCountdownTime;
+        TimerValueChange(CurTextValue);
         countdownDuration = (int)maxCountdownTime;
         SynTime = (int)maxCountdownTime;
     }
-
+    public void TimerValueChange(int newValue)
+    {
+        timerText.text = FormatTime(newValue, timerType);
+    }
+    void Update()
+    {
+        if (CurTextValue > SynTime)
+        {
+            CurTextValue = SynTime;
+            TimerValueChange(CurTextValue);// timerText.text = FormatTime(newValue, timerType);
+        }
+    }
     public void StartTimer()
     {
         Reset();
