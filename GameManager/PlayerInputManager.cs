@@ -1,5 +1,6 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.GameManager;
+using Mirror.Examples.NetworkRoomExt;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -95,11 +96,14 @@ namespace Mirror.Examples.NetworkRoom
         public void GenerateBulletOnServer()
         {
             Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
-            NetworkPrefabPoolManager.Instance.CreateObject(Bullet.name, Bullet, FireTF.position, Quaternion.Euler(rotation),gameObject);
-            //Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
-            //Transform tf = GameObject.Instantiate(Bullet, FireTF.position, Quaternion.Euler(rotation)).transform;
-            //tf.GetComponent<Bullet>().Owner = gameObject;
-            //NetworkServer.Spawn(tf.gameObject);
+            
+        }
+        //ע�ᵽManager
+        [Command(requiresAuthority = false)]
+        public void ReloadForFirePrefabOnServer()
+        {
+            int playerIndex = transform.GetComponent<PlayerScore>().index;
+            NetworkPrefabPoolManager.Instance.CreateObject(playerIndex, Bullet.name, Bullet, FireTF.position, Quaternion.identity, gameObject);
         }
 
         private bool GetJump()

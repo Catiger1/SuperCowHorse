@@ -1,4 +1,5 @@
 ﻿
+using Assets.Scripts.GameManager;
 using Mirror.Examples.NetworkRoom;
 
 namespace Assets.Scripts.StateMachine.State
@@ -20,6 +21,7 @@ namespace Assets.Scripts.StateMachine.State
             UnityEngine.Debug.Log("RoomState");
             WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).Clear();
             NetworkRoomManagerExt.singleton.TotalScore = 0;
+
         }
 
         public override void ExitState(IStateMachine sm)

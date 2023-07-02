@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Mirror;
-using Mirror.Experimental;
-using System.Linq;
 using Assets.Scripts.GameManager;
 using Assets.Scripts.Common;
 
@@ -29,15 +27,15 @@ public class Bullet : NetworkBehaviour,IResetable
         DontDestroyOnLoad(this);
     }
 
-    public void SetActive(bool flag,Vector2 pos, Quaternion quaternion)
-    {
-        if(flag)
-            CurTime = Time.time;
+    //public void SetActive(bool flag,Vector2 pos, Quaternion quaternion)
+    //{
+    //    if(flag)
+    //        CurTime = Time.time;
 
-        transform.position = pos;
-        transform.rotation = quaternion;
-        EnableState = flag;
-    }
+    //    transform.position = pos;
+    //    transform.rotation = quaternion;
+    //    EnableState = flag;
+    //}
 
     [ServerCallback]
     void OnTriggerEnter2D(Collider2D collision)
@@ -58,7 +56,10 @@ public class Bullet : NetworkBehaviour,IResetable
 
     void FixedUpdate()
     {
-        if (!EnableState) return;
+        if (!EnableState)
+        {
+            return;
+        }
         if(Time.time-CurTime>AliveTime)
         {
             NetworkPrefabPoolManager.Instance.CollectObject(gameObject, hidePos);
