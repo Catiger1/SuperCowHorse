@@ -33,7 +33,7 @@ namespace Assets.Scripts.StateMachine
             Curstate?.ExitState(this);
             flag = 0;
             Curstate = states.Find((s)=> { return s.StateID.Equals(state_id); });
-            UnityEngine.Debug.Log(Curstate);
+            //UnityEngine.Debug.Log(Curstate);
             Curstate.EnterState(this);
         }
         protected S CreateState<S>() where S:TS,new()

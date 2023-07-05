@@ -1,4 +1,6 @@
 ﻿
+using Assets.Scripts.GameManager;
+
 namespace Assets.Scripts.StateMachine
 {
     internal class EnterGamePlayRoomState : State<Trigger>
@@ -16,6 +18,7 @@ namespace Assets.Scripts.StateMachine
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("Enter Game Play Room");
+            NetworkPrefabPoolManager.Instance.ClearAll();
         }
 
         public override void ExitState(IStateMachine sm)

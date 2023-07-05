@@ -1,3 +1,4 @@
+using Mirror;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Audio;
@@ -13,14 +14,17 @@ public class SoundName
     public static string BGM0 = "BGM0";
     public static string BGM1 = "BGM1";
     public static string Button = "Button";
+    public static string Fire = "Fire";
+    public static string Jump = "Jump";
 }
 
-public class AudioManager : MonoSingleton<AudioManager>
+public class AudioManager:MonoSingleton<AudioManager>
 {
     public static AudioMixer audioMixer;
     private static Dictionary<string, AudioSource> audioDic = new Dictionary<string, AudioSource>();
     private static AudioSource curPlayingAudio;
     private bool isInit = false;
+
     public override void Init()
     {
         base.Init();
@@ -43,7 +47,6 @@ public class AudioManager : MonoSingleton<AudioManager>
         foreach (var sound in SoundsAsset.Instance.Sounds)
         {
             GameObject audioSourceGameObject = new GameObject(sound.audioClip.name);
-            //audioSourceGameObject.transform.SetParent(transform);
             AudioSource source= audioSourceGameObject.AddComponent<AudioSource>();
             source.clip = sound.audioClip;
             source.playOnAwake = sound.playOnAwake;

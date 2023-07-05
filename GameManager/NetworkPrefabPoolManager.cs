@@ -1,16 +1,19 @@
 ﻿
 using Assets.Scripts.Common;
 using Mirror;
+using Mirror.Examples.NetworkRoomExt;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Assets.Scripts.GameManager
 {
     public class NetworkPrefabPoolManager:MonoSingleton<NetworkPrefabPoolManager>
     {
-        public Dictionary<string, List<GameObject>> cache = new Dictionary<string, List<GameObject>>();
-        public Dictionary<int, GameObject> readyForFireCache = new Dictionary<int, GameObject>();
+        //public Dictionary<string, List<GameObject>> cache = new Dictionary<string, List<GameObject>>();
+        public Dictionary<int, List<GameObject>> readyForFireCache = new Dictionary<int, List<GameObject>>();
         public override void Init()
         {
             base.Init();
@@ -18,17 +21,29 @@ namespace Assets.Scripts.GameManager
         }
 
         [ServerCallback]
-        public GameObject CreateObject(string key, GameObject prefab, Vector3 pos, Quaternion rotate,GameObject owner)
+        public GameObject CreateObject(int index, GameObject prefab,Vector3 pos, Quaternion rotate,GameObject owner)
         {
-            GameObject go = FindUsableObject(key);
+            GameObject go = FindUsableObject(index);
+
             if (go == null)
-                go = AddObject(key, prefab);
+                go = AddObject(index, prefab, pos, rotate);
+            else
+                go.transform.rotation = rotate;
             
             go.GetComponent<Bullet>().Owner = owner;
-            UseObject(go, pos, rotate);
+            go.GetComponent<Bullet>().FirePos = owner.FindChildByName("FirePos");
+            UseObject(go);
             return go;
         }
-
+        [ServerCallback]
+        public GameObject CreateObjectAndHide(int index, GameObject prefab, Vector3 pos, Quaternion rotate, GameObject owner)
+        {
+            GameObject go = AddObject(index, prefab, pos, rotate);
+            go.GetComponent<Bullet>().Owner = owner;
+            go.GetComponent<Bullet>().FirePos = owner.FindChildByName("FirePos");
+            go.transform.localScale = Vector3.zero;
+            return go;
+        }
         /// <summary>
         /// 回收对象池对象
         /// </summary>
@@ -65,10 +80,10 @@ namespace Assets.Scripts.GameManager
                 prefab.transform.position = hidePos;
         }
 
-        private void UseObject(GameObject go, Vector3 pos, Quaternion rotate)
+        private void UseObject(GameObject go)
         {
-            go.transform.position = pos;
-            go.transform.rotation = rotate;
+            //go.transform.position = pos;
+            //go.transform.rotation = rotate;
             go.transform.localScale = new Vector3(3, 3, 1);
             go.GetComponent<NetworkPoolObject>().EnableState = true;
             //执行组件下组件挂载的各种复位方式
@@ -77,47 +92,79 @@ namespace Assets.Scripts.GameManager
                 prefab.OnReset();
             }
         }
+        [ServerCallback]
+        public void ReloadPrefab(int index,GameObject owner)
+        {
+            if (!readyForFireCache.ContainsKey(index))
+                readyForFireCache[index] = new List<GameObject>();
 
+            GameObject findGo = readyForFireCache[index].Find(s => !s.GetComponent<NetworkPoolObject>().EnableState);
+            if (findGo != null)
+            {
+                readyForFireCache[index].Add(findGo);
+                findGo.GetComponent<Bullet>().Owner = owner;
+                findGo.GetComponent<Bullet>().FirePos = owner.FindChildByName("FirePos");
+                findGo.transform.localScale = Vector3.zero;
+            }
+        }
         /// <summary>
         /// 查找可用的组件
         /// </summary>
-        private GameObject FindUsableObject(string key)
+        private GameObject FindUsableObject(int index)
         {
-            if (cache.ContainsKey(key))
-                return cache[key].Find(s => !s.GetComponent<NetworkPoolObject>().EnableState);
-            return null;
-        }
-
-        public List<GameObject> FindUsingObject(string key)
-        {
-            if (cache.ContainsKey(key))
-                return cache[key].FindAll(s => s.GetComponent<NetworkPoolObject>().EnableState);
-            return null;
-        }
-        public GameObject AddObject(string key, GameObject prefab)
-        {
-            GameObject go = Instantiate(prefab);
-            if (!cache.ContainsKey(key))
-                cache.Add(key, new List<GameObject>());
-            NetworkServer.Spawn(go);
-            cache[key].Add(go);
-            return go;
-        }
-        public void Clear(string key)
-        {
-            for (int i = cache[key].Count - 1; i >= 0; i--)
+            if (readyForFireCache.ContainsKey(index))
             {
-                NetworkServer.Destroy(cache[key][i]);
+                GameObject findGo = readyForFireCache[index].Find(s => !s.GetComponent<NetworkPoolObject>().EnableState);
+                if (findGo != null)
+                    return findGo;
             }
 
-            cache.Remove(key);
+            return null;
+        }
+
+        public GameObject FindUsingObject(int index)
+        {
+            if (readyForFireCache.ContainsKey(index))
+            {
+                GameObject findGo = readyForFireCache[index].Find(s => s.GetComponent<NetworkPoolObject>().EnableState);
+                if (findGo != null)
+                    return findGo;
+            }
+            return null;
+        }
+        //public GameObject AddObject(int index, GameObject prefab)
+        //{
+        //    GameObject go = Instantiate(prefab);
+        //    if (!readyForFireCache.ContainsKey(index))
+        //        readyForFireCache.Add(index, new List<GameObject>());
+        //    NetworkServer.Spawn(go);
+        //    readyForFireCache[index].Add(go);
+        //    return go;
+        //}
+        public GameObject AddObject(int index, GameObject prefab,Vector3 pos,Quaternion rotation)
+        {
+            GameObject go = Instantiate(prefab,pos, rotation);
+            if (!readyForFireCache.ContainsKey(index))
+                readyForFireCache.Add(index, new List<GameObject>());
+            NetworkServer.Spawn(go);
+            readyForFireCache[index].Add(go);
+            return go;
+        }
+        public void Clear(int key)
+        {
+            for (int i = readyForFireCache[key].Count - 1; i >= 0; i--)
+            {
+                NetworkServer.Destroy(readyForFireCache[key][i]);
+            }
+
+            readyForFireCache.Remove(key);
         }
         //清空所有
         [ServerCallback]
         public void ClearAll()
         {
             //将字典中所有键存入集合中再进行清空操作
-            foreach (var key in new List<string>(cache.Keys))
+            foreach (var key in new List<int>(readyForFireCache.Keys))
             {
                 Clear(key);
             }

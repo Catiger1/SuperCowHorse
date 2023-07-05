@@ -51,16 +51,16 @@ namespace Mirror.Examples.NetworkRoom
         public Transform FireTF;
         public GameObject Bullet;
         //Frition
-        public PhysicsMaterial2D ZeroFrition;
-        public PhysicsMaterial2D NormalFrition;
+        //public PhysicsMaterial2D ZeroFrition;
+        //public PhysicsMaterial2D NormalFrition;
 
         public bool CanControl { get; set; }
-
         public override void OnStartAuthority()
         {
             InitComponent();
             this.enabled = true;
             SetComponent();
+            //GenerateBulletAndHideOnServer();//this.DelayCallBack(2f,ReloadForFirePrefabOnServer);
         }
         public override void OnStopAuthority()
         {
@@ -88,22 +88,28 @@ namespace Mirror.Examples.NetworkRoom
         }
         private void OnFire()
         {
-            Debug.Log("Fire");
             lastFireTime = Time.time;
+            AudioManager.Play(SoundName.Fire);
             GenerateBulletOnServer();//NetworkServer.Spawn(tf.gameObject);
+            ReloadForFirePrefabOnServer();
+        }
+        [Command(requiresAuthority = false)]
+        public void GenerateBulletAndHideOnServer()
+        {
+            Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
+            NetworkPrefabPoolManager.Instance.CreateObjectAndHide(GetComponent<PlayerScore>().index, Bullet, FireTF.position, Quaternion.Euler(rotation), gameObject);
         }
         [Command(requiresAuthority = false)]
         public void GenerateBulletOnServer()
         {
             Vector3 rotation = transform.rotation.eulerAngles.y > 0 ? new Vector3(0, 0, 90) : new Vector3(0, 0, -90);
-            
+            NetworkPrefabPoolManager.Instance.CreateObject(GetComponent<PlayerScore>().index, Bullet, FireTF.position, Quaternion.Euler(rotation),gameObject);
         }
-        //ע�ᵽManager
+        
         [Command(requiresAuthority = false)]
         public void ReloadForFirePrefabOnServer()
         {
-            int playerIndex = transform.GetComponent<PlayerScore>().index;
-            NetworkPrefabPoolManager.Instance.CreateObject(playerIndex, Bullet.name, Bullet, FireTF.position, Quaternion.identity, gameObject);
+            NetworkPrefabPoolManager.Instance.ReloadPrefab(GetComponent<PlayerScore>().index, gameObject);
         }
 
         private bool GetJump()
@@ -127,7 +133,11 @@ namespace Mirror.Examples.NetworkRoom
             if (!CanControl) direction =0;
             if (direction != 0)
             {
-                _rigidbody.velocity = new Vector2(direction * speed, _rigidbody.velocity.y);
+                if (Mathf.Abs(_rigidbody.velocity.x) < 5)
+                    _rigidbody.AddForce(new Vector2(direction * speed, 0));// _rigidbody.AddForce(new Vector2(direction * speed,0));
+                //else
+                //    _rigidbody.velocity = new Vector2(5*direction, _rigidbody.velocity.y);
+
                 _rigidbody.transform.rotation = Quaternion.Euler(0, 180 * (direction > 0 ? 0 : 1), 0);
                 _animator.SetBool(AnimationName.Run, true);
                 status |= (int)Status.Move;
@@ -138,6 +148,21 @@ namespace Mirror.Examples.NetworkRoom
                 status &= ~(int)Status.Move;
             }
         }
+        //[Command(requiresAuthority = false)]
+        public void CmdAddForce(GameObject go,Vector2 dir)
+        {
+            go.GetComponent<Rigidbody2D>().AddForce(dir);
+        }
+
+        //[Command(requiresAuthority = false)]
+        public void CmdJumpAddForce(GameObject go, Vector2 dir)
+        {
+            Rigidbody2D rig = go.GetComponent<Rigidbody2D>();
+            if (rig.velocity.y != 0)
+                rig.velocity = Vector2.zero;
+            rig.AddForce(dir,ForceMode2D.Impulse);
+        }
+
         private void Fall()
         {
             if ((status & (int)Status.Fall) == 0 && (status & (int)Status.OnGround) == 0)
@@ -164,9 +189,19 @@ namespace Mirror.Examples.NetworkRoom
             if (!CanControl) return;
             if ((status & (int)Status.Jump) == 0 && ((status &= (int)Status.Jump) == 0) && buttonJump)
             {
+                AudioManager.Play(SoundName.Jump);
                 buttonJump = false;
                 StartCoroutine(WaitForJump());
+                Debug.Log("x="+ _rigidbody.velocity.x);
+                Debug.Log("direction=" + direction);
+                if (_rigidbody.velocity.y != 0&&((_rigidbody.velocity.x>0&& direction<0)||(_rigidbody.velocity.x < 0 && direction > 0)))
+                    _rigidbody.velocity = Vector2.zero;
+                else
+                    _rigidbody.velocity = new Vector2(_rigidbody.velocity.x,0);
                 _rigidbody.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
+                
+                //CmdJumpAddForce(gameObject,Vector2.up * jumpVelocity);
+                //_rigidbody.AddForce(Vector2.up * jumpVelocity, ForceMode2D.Impulse);
                 _animator.SetBool(AnimationName.Jump, true);
                 status |= (int)Status.Jump;
             }
@@ -181,17 +216,30 @@ namespace Mirror.Examples.NetworkRoom
                 CommandDispatcher.PushCommand(new CommandData()
                 {
                     DelayRemove = true,
-                    Delay = 0.2f,
+                    Delay = 0.3f,
                     condition = GetJump,
                     removeCondition = () => { return (status & (int)Status.OnGround) != 0; },
                     command = DoubleJump
                 });
             }
         }
+        int idd =0;
         private void DoubleJump()
         {
+            AudioManager.Play(SoundName.Jump);
             status |= (int)Status.DoubleJump;
-            _rigidbody.AddForce(Vector2.up * (jumpVelocity - _rigidbody.velocity.y), ForceMode2D.Impulse);
+            idd++;
+            Debug.Log("DoubleJump"+ idd);
+            //float y = _rigidbody.velocity.y > 0? jumpVelocity:jumpVelocity - _rigidbody.velocity.y;
+            Debug.Log("x=" + _rigidbody.velocity.x);
+            Debug.Log("direction=" + direction);
+            if (_rigidbody.velocity.y != 0 && ((_rigidbody.velocity.x > 0 && direction < 0) || (_rigidbody.velocity.x < 0 && direction > 0)))
+                _rigidbody.velocity = Vector2.zero;
+            else
+                _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, 0);
+            _rigidbody.AddForce(Vector2.up * jumpVelocity,ForceMode2D.Impulse);
+            //CmdJumpAddForce(gameObject, Vector2.up * jumpVelocity);
+            //_rigidbody.AddForce(Vector2.up * (jumpVelocity - _rigidbody.velocity.y), ForceMode2D.Impulse);
             _animator.SetBool(AnimationName.DoubleJump, true);
         }
         private void OnGround()
@@ -210,13 +258,13 @@ namespace Mirror.Examples.NetworkRoom
                     _animator.SetBool(AnimationName.DoubleJump, false);
                     isAddDoubleJumpDetection = false;
                     _rigidbody.gravityScale = jumpMultiplier;
-                    _rigidbody.sharedMaterial = NormalFrition;
+                    //_rigidbody.sharedMaterial = NormalFrition;
                 }
             }
             else
             {
                 status &= ~(int)Status.OnGround;
-                _rigidbody.sharedMaterial = ZeroFrition;
+                //_rigidbody.sharedMaterial = ZeroFrition;
             }
         }
         public void AddDetection(Func<bool> condition, Action call)

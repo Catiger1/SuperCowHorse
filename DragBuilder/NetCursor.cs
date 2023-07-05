@@ -122,7 +122,7 @@ public class NetCursor : NetworkBehaviour
     [Command(requiresAuthority = false)]
     public void CmdSyncSetTFPlaced()
     {
-        Debug.Log("Placed");
+        //Debug.Log("Placed");
         NetworkRoomManagerExt.singleton.SelectCount--;
         if (NetworkRoomManagerExt.singleton.SelectCount <= 0)
             NetSendChangeCountDownStateMessage();
