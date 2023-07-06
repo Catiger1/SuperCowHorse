@@ -20,7 +20,9 @@ namespace Assets.Scripts.StateMachine.State
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("Enter Set Trap State");
-            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).NetCursor.CanPlace = true;
+            NetCursor netCursor = WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).NetCursor;
+            netCursor.CanPlace = true;
+            Camera.main.GetComponent<CameraController>().ChangeLookAtTarget(netCursor.transform);
         }
         public override void ExitState(IStateMachine sm)
         {

@@ -29,7 +29,10 @@ public abstract class ObjectCanPlaced:MonoBehaviour
             transform.position = new Vector2(transform.position.x, hit.point.y + colHeight / 2);
         }
     }
-    public void ShowPosAfterPlaced(Collider2D collider, ContactFilter2D contactFilter2D, Collider2D[] result)
+
+    public virtual bool CallAfterPlaced(Collider2D[] result) { return false; }
+
+    public virtual void ShowPosAfterPlaced(Collider2D collider, ContactFilter2D contactFilter2D, Collider2D[] result)
     {
         if(IsCanPlaced(collider,contactFilter2D,result))
         {

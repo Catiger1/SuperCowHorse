@@ -13,21 +13,20 @@ namespace Mirror.Examples.NetworkRoomExt
         [SyncVar]
         public bool isDeath;
 
-        //[SyncVar]
-        //public bool dogfall;
+        public void Death()
+        {
+            if (isLocalPlayer)
+            {
+                CameraController cameraController = Camera.main.GetComponent<CameraController>();
+                cameraController.ChangeLookAtTarget(null);
+                cameraController.SetInitial();
+            }
+            isDeath = true;
+        }
 
         public void AddScore()
         {
             score++;
         }
-        //[Command]
-        //public void IndexChange(int _,int newIndex)
-        //{
-        //    GetComponent<PlayerCursor>().ChangeCursorColor(newIndex);
-        //}
-        //void OnGUI()
-        //{
-        //    GUI.Box(new Rect(10f + (index * 110), 10f, 100f, 25f), $"P{index}: {score:0000000}");
-        //}
     }
 }

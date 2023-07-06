@@ -5,6 +5,7 @@ using Mirror.Examples.NetworkRoomExt;
 using Mirror.Examples.NetworkRoom;
 using UnityEngine;
 using System;
+using UnityEngine.SocialPlatforms;
 
 public class NetCursor : NetworkBehaviour
 {
@@ -34,12 +35,15 @@ public class NetCursor : NetworkBehaviour
     //[SyncVar(hook = nameof(CmdSetPos))]
     public bool Active = false;
 
+    //Camera Bound
+    PolygonCollider2D CameraBound;
     private void Start()
     {
         offset = GetComponent<SpriteRenderer>().size / 2;
         offset.x = -offset.x;
         result = new Collider2D[2];
         contactFilter2D = new ContactFilter2D();
+        CameraBound = GameObject.FindWithTag("CameraBound").GetComponent<PolygonCollider2D>();
         CmdUpdateCursorPosition(new Vector2(1000, 1000));
     }
 
@@ -133,6 +137,11 @@ public class NetCursor : NetworkBehaviour
         if (islocal&& Active)
         {
             newCursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            if (CameraBound)
+            {
+                newCursorPos.x = Mathf.Abs(newCursorPos.x) > CameraBound.bounds.max.x ? (CameraBound.bounds.max.x * newCursorPos.x / Mathf.Abs(newCursorPos.x)) : newCursorPos.x;
+                newCursorPos.y = Mathf.Abs(newCursorPos.y) > CameraBound.bounds.max.y ? (CameraBound.bounds.max.y * newCursorPos.y / Mathf.Abs(newCursorPos.y)) : newCursorPos.y;
+            }
             CmdUpdateCursorPosition(newCursorPos - offset);
             if (Input.GetMouseButtonDown(0))
             {
@@ -161,16 +170,14 @@ public class NetCursor : NetworkBehaviour
                     //Ð´³ÉÍøÂç
                     if (objectCanPlaced.IsCanPlaced(boxCollider, contactFilter2D, result))
                     {
-                        //Active = false;
-                        CmdSyncSetTFPlaced();
-                        PlacedPosAdjust(curSelectTF, boxCollider.bounds.center, boxCollider.bounds.size.y);
-                        CmdLayerSetting(curSelectTF);//curSelectTF.GetComponent<SpriteRenderer>().sortingLayerID = SortingLayer.NameToID("DragBuilder");
-                        curSelectTF.GetComponent<SpriteRenderer>().color = Color.white;
-                        //CmdSyncSelectTFPos(curSelectTF, newCursorPos);
+                        if (!objectCanPlaced.CallAfterPlaced(result))
+                        {
+                            PlacedPosAdjust(curSelectTF, boxCollider.bounds.center, boxCollider.bounds.size.y);
+                            CmdLayerSetting(curSelectTF);//curSelectTF.GetComponent<SpriteRenderer>().sortingLayerID = SortingLayer.NameToID("DragBuilder");
+                            curSelectTF.GetComponent<SpriteRenderer>().color = Color.white;
+                        }
                         SetActive(false);
-
-                        //CmdUpdateCursorPosition(new Vector2(1000, 1000));
-                        //TrapStateEnd(parentTF);
+                        CmdSyncSetTFPlaced();
                     }
                 }
             }
@@ -213,17 +220,18 @@ public class NetCursor : NetworkBehaviour
     }
     public void SetActive(bool flag)
     {
-        if(flag)
+        if (islocal)
+        {
+            CameraController cameraController = Camera.main.GetComponent<CameraController>();
+            cameraController.ChangeLookAtTarget(null);
+            cameraController.SetInitial();
+        }
+        if (flag)
         {
             Active = true;
             CmdUpdateCursorPosition(new Vector2(0,0));
         }else
         {
-            //if (Active)
-            //{
-            //   GameObject.Destroy(curSelectTF.gameObject);
-            //   Debug.Log("Destroy curSelectTF");
-            //}
             Debug.Log("SetActive false");
             Active = false;
             CmdUpdateCursorPosition(new Vector2(1000, 1000));

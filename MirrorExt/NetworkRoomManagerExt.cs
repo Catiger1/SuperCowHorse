@@ -123,7 +123,6 @@ namespace Mirror.Examples.NetworkRoom
 
         public override void OnClientStateInternal(StateMessage msg)
         {
-            //Debug.Log("new state = " + msg.newStateID);
             GameStateManager.Instance.ChangeState(msg.newStateID);
         }
 

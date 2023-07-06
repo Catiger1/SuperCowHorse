@@ -20,7 +20,7 @@ public class EleSpikeweed : ObjectCanPlaced
         Debug.Log("Collision Detected");
         if (collision.gameObject.CompareTag("Player"))
         {
-            collision.gameObject.GetComponent<PlayerScore>().isDeath = true;
+            collision.gameObject.GetComponent<PlayerScore>().Death();
             NetworkRoomManagerExt.singleton.AliveCount--;
             if (NetworkRoomManagerExt.singleton.AliveCount <= 1)
                 SendChangeStateMessage();
@@ -42,7 +42,6 @@ public class EleSpikeweed : ObjectCanPlaced
         Vector2 rayFirePos = new Vector2(collider.bounds.center.x, collider.bounds.center.y- collider.bounds.size.y/2);
         RaycastHit2D hit = Physics2D.Raycast(rayFirePos, Vector2.down, RayLength, CanPlacedLayer);
         flag &= hit;
-        //if (flag) PlacedPosAdjust(hit.point,collider);
         return flag;
     }
 

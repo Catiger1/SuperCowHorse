@@ -36,10 +36,10 @@ public class Bullet : NetworkBehaviour,IResetable
             if (collision.gameObject.layer == 3)
             {
                 Debug.Log("Add Force To GamePlayer");
-                Vector2 forceDir = transform.rotation.eulerAngles.z >180 ? Vector2.right : Vector2.left;
-                //collision.GetComponent<Rigidbody2D>().AddForce(HitForce * forceDir, ForceMode2D.Impulse);
+                Vector2 forceDir = transform.rotation.eulerAngles.z > 180 ? Vector2.right : Vector2.left;
                 AddForce(collision.gameObject, HitForce * forceDir);
             }
+            else if (collision.gameObject.layer == 5) return;
             NetworkPrefabPoolManager.Instance.CollectObject(gameObject, hidePos);
             EnableState = false;
         }

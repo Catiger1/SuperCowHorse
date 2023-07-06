@@ -14,8 +14,7 @@ public class EleFan : ObjectCanPlaced
 
     }
 
-
-    public override bool IsCanPlaced(Collider2D collider,ContactFilter2D contactFilter2D,Collider2D[] result)
+    public override bool IsCanPlaced(Collider2D collider,ContactFilter2D contactFilter2D, Collider2D[] result)
     {
         return collider.OverlapCollider(contactFilter2D, result) == 0;
     }

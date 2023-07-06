@@ -26,6 +26,10 @@ namespace Assets.Scripts.StateMachine.State
             NetworkRoomManagerExt.singleton.AliveCount = NetworkRoomManagerExt.singleton.numPlayers;
 
             NetworkClient.localPlayer.GetComponent<PlayerInputManager>().CanControl = true;
+            
+            NetCursor netCursor = WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).NetCursor;
+            Camera.main.GetComponent<CameraController>().ChangeLookAtTarget(NetworkClient.localPlayer.transform);
+           
             GameObject[] timers = GameObject.FindGameObjectsWithTag("Timer");
             for (int i = 0; i < timers.Length; i++)
             {

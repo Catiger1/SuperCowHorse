@@ -27,8 +27,7 @@ namespace Assets.Scripts.StateMachine.State
             ResetPlayer(spawnPos);
             Transform player = NetworkClient.localPlayer.transform;
             player.position = spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position;
-           // Debug.Log(spawnPos.GetChild(NetworkClient.localPlayer.GetComponent<PlayerSelector>().CharacterIndex).position);
-            //NetworkClient.localPlayer.GetComponent<PlayerScore>().isDeath = false;
+
             GameObject[] timers = GameObject.FindGameObjectsWithTag("Timer");
             for (int i = 0; i < timers.Length; i++)
             {
