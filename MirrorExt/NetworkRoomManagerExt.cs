@@ -27,10 +27,12 @@ namespace Mirror.Examples.NetworkRoom
 
         public static bool IsGameFinish()
         {
-            bool flag = (singleton.TotalScore >= singleton.MaxTotalScore) && NetworkServer.active && Utils.IsSceneActive(singleton.GameplayScene);
+            bool flag = singleton.numPlayers <= 1||(singleton.TotalScore >= singleton.MaxTotalScore) && NetworkServer.active && Utils.IsSceneActive(singleton.GameplayScene);
             if(flag)singleton.ServerChangeScene(singleton.RoomScene);
             return flag;
         }
+
+        
         //public NetworkRoomPlayerExt LocalPlayer { get; set; }
         /// <summary>
         /// Runs on both Server and Client

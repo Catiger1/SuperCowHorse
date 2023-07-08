@@ -75,7 +75,9 @@ public class NetCursor : NetworkBehaviour
         islocal = localPlayer.GetComponent<NetworkIdentity>().isLocalPlayer;
         if (islocal)
         {
-            WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).SetNetCursor(this);
+            PlacementWindow placementWindow = WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow);
+            Debug.Log("Placement="+ placementWindow);
+            placementWindow.SetNetCursor(this);
             UpdateSpriteColor(localPlayer.GetComponent<PlayerScore>().index);
         }
         //go.GetComponent<PlayerCursor>().ChangeCursorColor(go.GetComponent<PlayerScore>().index);

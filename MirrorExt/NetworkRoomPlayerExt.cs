@@ -77,7 +77,7 @@ namespace Mirror.Examples.NetworkRoom
                 });
             }
             //Reset Select Button
-            this.DelayCallBack(1, () => {
+            //this.DelayCallBack(1, () => {
                 if (CurSelectCharacterIndex != -1)
                 {
                     GameObject selectBtn = GameObject.FindGameObjectWithTag("SelectButton");
@@ -95,7 +95,7 @@ namespace Mirror.Examples.NetworkRoom
                     else { }
                     GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameStopNet);
                 });
-            });
+           // });
         }
 
         public override void OnGUI()

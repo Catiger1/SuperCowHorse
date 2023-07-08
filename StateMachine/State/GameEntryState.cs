@@ -17,7 +17,7 @@ namespace Assets.Scripts.StateMachine
         public override void EnterState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("GameEntry State");
-            //SceneManager.LoadScene("GameStartScene");
+            //WindowsManager.Instance.InitAllWindows();
             AudioManager.Play(SoundName.BGM1);
         }
 

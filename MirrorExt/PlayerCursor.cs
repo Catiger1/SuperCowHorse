@@ -29,9 +29,10 @@ public class PlayerCursor : NetworkBehaviour
     {
         GameObject go = ResourcesManager.Load<GameObject>("Prefab/Cursor");
         CursorGo = GameObject.Instantiate(go);
+        Debug.Log("CursorGo = "+CursorGo);
         NetworkServer.Spawn(CursorGo);
         RpcSetLocalPlayer(CursorGo);
-        //Debug.Log("cursor="+GetComponent<PlayerScore>().index);
+
     }
     [ClientRpc]
     public void RpcSetLocalPlayer(GameObject go)
@@ -39,9 +40,9 @@ public class PlayerCursor : NetworkBehaviour
         go.GetComponent<NetCursor>().SetLocalPlayer(gameObject);
     }
 
-    public void OnDestroy()
-    {
-        if (CursorGo != null)
-           Destroy(CursorGo);
-    }
+    //public void OnDestroy()
+    //{
+    //    if (CursorGo != null)
+    //       Destroy(CursorGo);
+    //}
 }
