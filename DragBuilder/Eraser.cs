@@ -31,8 +31,8 @@ public class Eraser : ObjectCanPlaced
         {
             if (result[i].GetComponent<ObjectCanPlaced>() != null)
             {
-                NetworkServer.Destroy(result[i].gameObject);
-                NetworkServer.Destroy(gameObject);
+                GetComponent<NetworkFunction>().Destroy(result[i].gameObject); //NetworkServer.Destroy();
+                GetComponent<NetworkFunction>().Destroy(gameObject); //NetworkServer.Destroy(gameObject);
                 break;
             }
         }

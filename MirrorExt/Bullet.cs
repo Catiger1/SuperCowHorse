@@ -28,14 +28,10 @@ public class Bullet : NetworkBehaviour,IResetable
     [ServerCallback]
     void OnTriggerEnter2D(Collider2D collision)
     {
-        //Debug.Log("Can Layer = " + layer.value);
         if (Owner!=null&&!Owner.Equals(collision.gameObject) && (collision.gameObject.layer & layer) > 0)
         {
-            Debug.Log("Owner = " + Owner);
-            Debug.Log("Name = " + collision.gameObject.name + " Layer = " + collision.gameObject.layer);
             if (collision.gameObject.layer == 3)
             {
-                Debug.Log("Add Force To GamePlayer");
                 Vector2 forceDir = transform.rotation.eulerAngles.z > 180 ? Vector2.right : Vector2.left;
                 AddForce(collision.gameObject, HitForce * forceDir);
             }

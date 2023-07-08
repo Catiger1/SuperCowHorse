@@ -173,7 +173,8 @@ public class NetCursor : NetworkBehaviour
                         if (!objectCanPlaced.CallAfterPlaced(result))
                         {
                             PlacedPosAdjust(curSelectTF, boxCollider.bounds.center, boxCollider.bounds.size.y);
-                            CmdLayerSetting(curSelectTF);//curSelectTF.GetComponent<SpriteRenderer>().sortingLayerID = SortingLayer.NameToID("DragBuilder");
+                            Debug.Log("Layer Setting");
+                            CmdLayerSetting(curSelectTF);
                             curSelectTF.GetComponent<SpriteRenderer>().color = Color.white;
                         }
                         SetActive(false);

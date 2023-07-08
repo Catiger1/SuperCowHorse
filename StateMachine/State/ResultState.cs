@@ -43,7 +43,6 @@ namespace Assets.Scripts.StateMachine.State
                     break;
                 }
             }
-            Debug.Log(dogfall);
 
             if(!dogfall)
                 foreach (GameObject player in players)

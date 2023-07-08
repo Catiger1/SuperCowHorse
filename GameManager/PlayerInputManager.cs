@@ -1,5 +1,6 @@
 using Assets.Scripts.Common;
 using Assets.Scripts.GameManager;
+using Assets.Scripts.StateMachine;
 using Mirror.Examples.NetworkRoomExt;
 using System;
 using System.Collections;
@@ -33,9 +34,6 @@ namespace Mirror.Examples.NetworkRoom
         //OnGround Detection
         public LayerMask mask;
         private Vector2 playerSize;
-        //private Vector2 boxSize;
-        //private readonly float boxHeight = 0.2f;
-
         //key-vibration eliminate
         private bool buttonJump = true;
 
@@ -50,11 +48,14 @@ namespace Mirror.Examples.NetworkRoom
         public float FireInterval = 1f;
         public Transform FireTF;
         public GameObject Bullet;
+        //Death Height
+        private float DeathHeight = -10;
         public bool CanControl { get; set; }
         public override void OnStartAuthority()
         {
             InitComponent();
             this.enabled = true;
+            Debug.Log("Script Active");
             SetComponent();
         }
         public override void OnStopAuthority()
@@ -75,11 +76,32 @@ namespace Mirror.Examples.NetworkRoom
             //Add OnGround Detection
             AddDetection(() => { return true; }, OnGround);
             AddDetection(Fire,OnFire);
+            AddDetection(FallOverDeathLine, Death);
         }
 
+        private bool FallOverDeathLine()
+        {
+            //Debug.Log("Death="+DeathHeight+" transform.y="+transform.position.y);
+            return (transform.position.y < DeathHeight)&&CanControl;
+        }
+        [Command(requiresAuthority = false)]
+        private void Death()
+        {
+            GetComponent<PlayerScore>().Death();
+            NetworkRoomManagerExt.singleton.AliveCount--;
+            if (NetworkRoomManagerExt.singleton.AliveCount <= 1)
+                SendChangeStateMessage();
+        }
+        public void SendChangeStateMessage()
+        {
+            NetworkServer.SendToAll(new StateMessage
+            {
+                newStateID = (int)GameStateID.Result
+            });
+        }
         private bool Fire()
         {
-            return Input.GetKeyDown(KeyCode.J)&&(Time.time- lastFireTime>= FireInterval);
+            return Input.GetKeyDown(KeyCode.J)&&(Time.time- lastFireTime>= FireInterval)&& CanControl;
         }
         private void OnFire()
         {
@@ -129,9 +151,7 @@ namespace Mirror.Examples.NetworkRoom
             if (direction != 0)
             {
                 if (Mathf.Abs(_rigidbody.velocity.x) < 5)
-                    _rigidbody.AddForce(new Vector2(direction * speed, 0));// _rigidbody.AddForce(new Vector2(direction * speed,0));
-                //else
-                //    _rigidbody.velocity = new Vector2(5*direction, _rigidbody.velocity.y);
+                    _rigidbody.AddForce(new Vector2(direction * speed, 0));
 
                 _rigidbody.transform.rotation = Quaternion.Euler(0, 180 * (direction > 0 ? 0 : 1), 0);
                 _animator.SetBool(AnimationName.Run, true);
@@ -172,8 +192,6 @@ namespace Mirror.Examples.NetworkRoom
                 AudioManager.Play(SoundName.Jump);
                 buttonJump = false;
                 StartCoroutine(WaitForJump());
-                Debug.Log("x="+ _rigidbody.velocity.x);
-                Debug.Log("direction=" + direction);
                 if (_rigidbody.velocity.y != 0&&((_rigidbody.velocity.x>0&& direction<0)||(_rigidbody.velocity.x < 0 && direction > 0)))
                     _rigidbody.velocity = Vector2.zero;
                 else
@@ -201,16 +219,16 @@ namespace Mirror.Examples.NetworkRoom
                 });
             }
         }
-        int idd =0;
+        //int idd =0;
         private void DoubleJump()
         {
             AudioManager.Play(SoundName.Jump);
             status |= (int)Status.DoubleJump;
-            idd++;
-            Debug.Log("DoubleJump"+ idd);
-            //float y = _rigidbody.velocity.y > 0? jumpVelocity:jumpVelocity - _rigidbody.velocity.y;
-            Debug.Log("x=" + _rigidbody.velocity.x);
-            Debug.Log("direction=" + direction);
+            //idd++;
+            //Debug.Log("DoubleJump"+ idd);
+            ////float y = _rigidbody.velocity.y > 0? jumpVelocity:jumpVelocity - _rigidbody.velocity.y;
+            //Debug.Log("x=" + _rigidbody.velocity.x);
+            //Debug.Log("direction=" + direction);
             if (_rigidbody.velocity.y != 0 && ((_rigidbody.velocity.x > 0 && direction < 0) || (_rigidbody.velocity.x < 0 && direction > 0)))
                 _rigidbody.velocity = Vector2.zero;
             else
@@ -221,7 +239,9 @@ namespace Mirror.Examples.NetworkRoom
         private void OnGround()
         {
             //whether leave ground
-            if (Physics2D.Raycast((Vector2)transform.position, Vector2.down, playerSize.y * 0.5f, mask))
+            if (Physics2D.Raycast((Vector2)transform.position - new Vector2(playerSize.x * 0.4f,0), Vector2.down, playerSize.y * 0.5f, mask)
+                || Physics2D.Raycast((Vector2)transform.position + new Vector2(playerSize.x * 0.4f, 0), Vector2.down, playerSize.y * 0.5f, mask)
+                )
             {
                 if ((status &= (int)Status.OnGround) == 0)
                 {
