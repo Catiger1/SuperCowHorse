@@ -13,6 +13,8 @@ public class GameStartScene : MonoBehaviour
     public Button ButtonClient;
     public Button ButtonSetting;
     public Button ButtonExit;
+    public Button ButtonDescription;
+
     void Start()
     {
         ButtonHost.onClick.AddListener(() =>
@@ -33,6 +35,11 @@ public class GameStartScene : MonoBehaviour
             AudioManager.Play(SoundName.Button);
         });
         ButtonExit.onClick.AddListener(ExitGame);
+
+        ButtonDescription.onClick.AddListener(() => {
+            WindowsManager.Instance.OpenWindow(WindowsType.SettingWindow);
+            AudioManager.Play(SoundName.Button);
+        });
     }
 
     
