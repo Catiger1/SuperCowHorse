@@ -9,4 +9,7 @@
 >* 通过AD或者方向键控制人物移动，通过J键发射子弹
 >
 * 游戏截图
+>* ![image text](https://github.com/Catiger1/SuperCowHorse/blob/master/Game%20Instructions/Room.png "DBSCAN Performance Comparison")
+>* ![image text](https://github.com/Catiger1/SuperCowHorse/blob/master/Game%20Instructions/Place Traps.png "DBSCAN Performance Comparison")
 >* ![image text](https://github.com/Catiger1/SuperCowHorse/blob/master/Game%20Instructions/Fire.png "DBSCAN Performance Comparison")
+>* ![image text](https://github.com/Catiger1/SuperCowHorse/blob/master/Game%20Instructions/Result.png "DBSCAN Performance Comparison")
