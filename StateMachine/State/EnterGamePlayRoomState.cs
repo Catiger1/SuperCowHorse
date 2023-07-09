@@ -1,5 +1,6 @@
 ﻿
 using Assets.Scripts.GameManager;
+using UnityEngine;
 
 namespace Assets.Scripts.StateMachine
 {
@@ -19,6 +20,7 @@ namespace Assets.Scripts.StateMachine
         {
             UnityEngine.Debug.Log("Enter Game Play Room");
             NetworkPrefabPoolManager.Instance.ClearAll();
+            Cursor.visible = false;
         }
 
         public override void ExitState(IStateMachine sm)

@@ -1,6 +1,7 @@
 ﻿
 using Assets.Scripts.GameManager;
 using Mirror.Examples.NetworkRoom;
+using UnityEngine;
 
 namespace Assets.Scripts.StateMachine.State
 {
@@ -21,6 +22,7 @@ namespace Assets.Scripts.StateMachine.State
             UnityEngine.Debug.Log("RoomState");
             WindowsManager.Instance.GetWindow<PlacementWindow>(WindowsType.PlacementWindow).Clear();
             NetworkRoomManagerExt.singleton.TotalScore = 0;
+            Cursor.visible = true;
 
         }
 
