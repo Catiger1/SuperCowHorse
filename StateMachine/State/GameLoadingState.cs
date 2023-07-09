@@ -22,6 +22,7 @@ namespace Assets.Scripts.StateMachine
         public override void ExitState(IStateMachine sm)
         {
             UnityEngine.Debug.Log("Exit GameLoading State");
+            AudioManager.Stop(SoundName.BGM0);
         }
     }
 }

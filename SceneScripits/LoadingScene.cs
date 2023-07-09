@@ -2,6 +2,8 @@ using DG.Tweening;
 using UnityEngine.UI;
 using Assets.Scripts.StateMachine;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+
 public class LoadingScene : MonoSingleton<LoadingScene>
 {
     public Slider slider;
@@ -20,8 +22,11 @@ public class LoadingScene : MonoSingleton<LoadingScene>
         if ((Time.time - time) > (deltaTime * (slider.value + (slider.maxValue / 6))))
         {
             slider.value += slider.maxValue / 6;
-            if(slider.maxValue-slider.value<0.1f) 
+            if (slider.maxValue - slider.value < 0.1f)
+            {
+                SceneManager.LoadScene("GameStartScene");
                 GameStateManager.Instance.SetGameStateMachineFlag(GameTriggerID.GameLoadingFinish);
+            }
         };
     }
 }

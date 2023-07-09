@@ -11,7 +11,7 @@ namespace Assets.Scripts.StateMachine
         protected override void Initialize()
         {
             //默认loading
-            defaultstate_id = GameStateID.EnterGame;
+            defaultstate_id = GameStateID.LoadingGame;
             GameLoadingState loadingState = CreateState<GameLoadingState>();
             GameEntryState entryState = CreateState<GameEntryState>();
             RoomState roomState = CreateState<RoomState>();
