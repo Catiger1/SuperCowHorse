@@ -16,7 +16,7 @@ public class LoadingScene : MonoSingleton<LoadingScene>
         UIBarCharacter.DOMoveX(EndPos.position.x, deltaTime).SetEase(Ease.Linear);
         time = Time.time;
     }
-
+    
     void Update()
     {
         if ((Time.time - time) > (deltaTime * (slider.value + (slider.maxValue / 6))))
